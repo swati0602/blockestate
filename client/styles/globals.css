@@ -1,0 +1,33 @@
+@import url("./assets/css/plugins/feature.css");
+@import url("./assets/css/plugins/jquery-ui.min.css");
+@import url("./assets/css/vendor/bootstrap.min.css");
+@import url("./assets/css/vendor/nice-select.css");
+@import url("./assets/css/vendor/odometer.css");
+@import url("./assets/css/vendor/slick-theme.css");
+@import url("./assets/css/vendor/slick.css");
+@import url("./assets/css/style.css");
+
+/* Tailwind utilities — preflight (CSS reset) is disabled in tailwind.config.js
+   so no existing template styles are overridden */
+@tailwind utilities;
+
+/* ── PropertyCard hover effects ───────────────────────────────────────────── */
+
+.property-title {
+  background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: background 0.3s ease;
+}
+
+.property-card:hover .property-title {
+  background: linear-gradient(90deg, #00FFA3, #00D9FF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
