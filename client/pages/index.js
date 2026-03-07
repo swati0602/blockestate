@@ -16,7 +16,7 @@ import {
 import { useStateContext } from "../context/index";
 import { getTopCreators } from "../utils";
 
-const index = () => {
+const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [properties, setProperties] = useState([]);
 
@@ -63,26 +63,25 @@ const index = () => {
 
   // const creators = getTopCreators(properties);
 
-  return (
-    <div class="template-color-1 nft-body-connect">
-      <Header />
-      <Banner />
+ return (
+  <div className="template-color-1 nft-body-connect">
+    <Header />
+    <Banner />
 
-      <Service />
-      <Product properties={properties} />
-      {/* <TopSeller creators={creators} /> */}
+    <Service />
+    <Product properties={properties || []} />
 
-      <Collection
-        housing={housing?.length}
-        rental={rental?.length}
-        farmhouse={farmhouse?.length}
-        office={office?.length}
-      />
+    <Collection
+      housing={housing.length}
+      rental={rental.length}
+      farmhouse={farmhouse.length}
+      office={office.length}
+    />
 
-      <Footer />
-      <Copyright />
-    </div>
-  );
+    <Footer />
+    <Copyright />
+  </div>
+);
 };
 
-export default index;
+export default Index;
