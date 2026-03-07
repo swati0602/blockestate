@@ -21,13 +21,15 @@ const FETCH_CONTRACT = (PROVIDER) =>
 //CONNECTING WITH CONTRACT (always uses the active MetaMask provider)
 const connectingWithSmartContract = async () => {
   try {
-    // Use the MetaMask provider selected during connectWallet, or fall back to window.ethereum
-    const rawProvider = (typeof window !== "undefined" && window._selectedProvider)
-      ? window._selectedProvider
-      : window.ethereum;
+    if (typeof window === "undefined") return;
+
+    const rawProvider = window._selectedProvider || window.ethereum;
+    if (!rawProvider) return;
+
     const provider = new ethers.providers.Web3Provider(rawProvider);
     const PROVIDER = provider.getSigner();
     const contract = FETCH_CONTRACT(PROVIDER);
+
     return contract;
   } catch (error) {
     console.log(error);
@@ -52,10 +54,9 @@ export const StateContextProvider = ({ children }) => {
 
   //---CHECK IF WALLET IS CONNECTD
   const checkIfWalletConnected = async () => {
-    try {
-      if (!window.ethereum) return;
-      // If user manually disconnected, don't auto-reconnect
-      if (localStorage.getItem("walletDisconnected") === "true") return;
+  try {
+    if (typeof window === "undefined") return;
+    if (!window.ethereum) return;
 
       // Use eth_accounts (read-only, no popup) to check existing connection
       const accounts = await window.ethereum.request({
