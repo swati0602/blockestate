@@ -195,7 +195,7 @@ const S = `
   .ep2-wallet-ico { width:42px;height:42px;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,rgba(112,72,232,0.35),rgba(99,179,237,0.2));border:1px solid rgba(112,72,232,0.4);display:flex;align-items:center;justify-content:center;color:#a78bfa; }
   .ep2-wallet-lbl { font-size:1.1rem;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:.1em;flex:1; }
   .ep2-wallet-addr { font-family:monospace;font-size:1.15rem;color:#e2d9ff;letter-spacing:.04em;word-break:break-all;line-height:1.65;padding:12px 16px;background:rgba(0,0,0,0.22);border-radius:10px;border:1px solid rgba(255,255,255,0.06); }
-  .ep2-copy-btn { flex-shrink:0;background:rgba(124,58,237,0.14);border:1px solid rgba(124,58,237,0.3);border-radius:8px;padding:6px 14px;cursor:pointer;color:#a78bfa;display:inline-flex;align-items:center;gap:6px;font-size:1rem;font-weight:600;transition:all .22s;white-space:nowrap; }
+  .ep2-copy-btn { flex-shrink:0;background:rgba(124,58,237,0.14);border:1px solid rgba(124,58,237,0.3);border-radius:6px;padding:8px 12px;cursor:pointer;color:#a78bfa;display:inline-flex;align-items:center;gap:5px;font-size:0.9rem;font-weight:600;transition:all .22s;white-space:nowrap;width:fit-content; }
   .ep2-copy-btn:hover { background:rgba(124,58,237,0.28);color:#c4b5fd;transform:translateY(-1px); }
 
   /* divider + buttons */
@@ -222,6 +222,27 @@ const S = `
   .ep2-toggle-sl::after { content:"";position:absolute;height:19px;width:19px;border-radius:50%;left:3px;bottom:2px;background:#fff;transition:left .3s cubic-bezier(.22,.68,0,1.2);box-shadow:0 2px 6px rgba(0,0,0,.35); }
   .ep2-toggle input:checked + .ep2-toggle-sl { background:linear-gradient(135deg,#7c3aed,#9f7aea);box-shadow:0 0 14px rgba(112,72,232,.5);border-color:transparent; }
   .ep2-toggle input:checked + .ep2-toggle-sl::after { left:24px; }
+
+  /* delete account */
+  .ep2-danger-zone { padding:24px;border-radius:13px;background:rgba(239,68,68,0.08);border:1.5px solid rgba(239,68,68,0.25);margin-top:24px; }
+  .ep2-danger-title { font-size:1.25rem;font-weight:700;color:#ef4444;margin-bottom:8px;display:flex;align-items:center;gap:8px; }
+  .ep2-danger-desc { font-size:1.05rem;color:rgba(255,255,255,0.3);margin-bottom:16px;line-height:1.6; }
+  .ep2-btn-delete { padding:12px 28px;border-radius:10px;background:linear-gradient(135deg,#dc2626,#ef4444);border:none;color:#fff;font-size:1.1rem;font-weight:600;cursor:pointer;transition:all .25s;box-shadow:0 4px 16px rgba(239,68,68,0.3); }
+  .ep2-btn-delete:hover { transform:translateY(-2px);box-shadow:0 8px 24px rgba(239,68,68,0.5); }
+  .ep2-btn-delete.loading { opacity:0.6;cursor:not-allowed; }
+
+  /* modal */
+  .ep2-modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:9999;animation:ep-fadeUp .25s ease; }
+  .ep2-modal { background:linear-gradient(160deg,rgba(18,14,42,0.98),rgba(10,10,24,0.99));border:1px solid rgba(239,68,68,0.3);border-radius:20px;padding:32px;max-width:500px;width:90%;box-shadow:0 24px 80px rgba(0,0,0,0.8);animation:ep-slideIn .3s ease; }
+  .ep2-modal-title { font-size:1.6rem;font-weight:700;color:#ef4444;margin-bottom:12px;display:flex;align-items:center;gap:10px; }
+  .ep2-modal-text { font-size:1.1rem;color:rgba(255,255,255,0.5);margin-bottom:24px;line-height:1.6; }
+  .ep2-modal-warning { background:rgba(239,68,68,0.1);border-left:3px solid #ef4444;padding:12px 14px;border-radius:8px;font-size:1rem;color:#fca5a5;margin-bottom:24px;line-height:1.5; }
+  .ep2-modal-actions { display:flex;gap:12px;justify-content:flex-end; }
+  .ep2-modal-cancel { padding:12px 28px;border-radius:10px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.1);color:#cbd5e1;font-size:1.1rem;font-weight:600;cursor:pointer;transition:all .25s; }
+  .ep2-modal-cancel:hover { background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2); }
+  .ep2-modal-delete { padding:12px 28px;border-radius:10px;background:linear-gradient(135deg,#dc2626,#ef4444);border:none;color:#fff;font-size:1.1rem;font-weight:600;cursor:pointer;transition:all .25s;box-shadow:0 4px 16px rgba(239,68,68,0.3); }
+  .ep2-modal-delete:hover { transform:translateY(-2px);box-shadow:0 8px 24px rgba(239,68,68,0.5); }
+  .ep2-modal-delete.loading { opacity:0.6;cursor:not-allowed; }
 
   @media(max-width:575px){ .ep2-tab-body { padding:22px 18px 20px; } }
 `;
@@ -251,6 +272,8 @@ const EditProfileTwo = () => {
   const [copied, setCopied] = useState(false);
   const [dragOver, setDragOver] = useState(null);
   const [bioLen, setBioLen] = useState(0);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -300,12 +323,44 @@ const EditProfileTwo = () => {
 
   const saveNotifications = (e) => { e.preventDefault(); localStorage.setItem(key("be_notifications"), JSON.stringify(notifications)); setNotifSaved(true); setTimeout(() => setNotifSaved(false), 2500); };
 
+  const handleDeleteAccount = async () => {
+    if (!currentAccount) {
+      notifyError("Wallet not connected");
+      return;
+    }
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/users/${currentAccount}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) throw new Error();
+      notifySuccess("Account deleted successfully!");
+      setShowDeleteModal(false);
+      
+      // Clear local storage
+      localStorage.removeItem(key("be_profile"));
+      localStorage.removeItem(key("be_notifications"));
+      localStorage.removeItem(key("be_profileImg"));
+      localStorage.removeItem(key("be_coverImg"));
+      
+      // Redirect after delay
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1500);
+    } catch (err) {
+      setIsDeleting(false);
+      notifyError("Failed to delete account. Please try again.");
+    }
+  };
+
   const shortAddr = currentAccount ? currentAccount.slice(0, 8) + "..." + currentAccount.slice(-6) : "Not connected";
   const displayName = [profile.firstName, profile.lastName].filter(Boolean).join(" ") || shortAddr;
   const tabs = [
     { id: "image", icon: "feather-camera", label: "Profile Images" },
     { id: "info", icon: "feather-user", label: "Personal Info" },
     { id: "notif", icon: "feather-bell", label: "Notifications" },
+    { id: "account", icon: "feather-settings", label: "Account Settings" },
   ];
 
   return (
@@ -520,12 +575,72 @@ const EditProfileTwo = () => {
                     </div>
                   )}
 
+                  {/* ACCOUNT SETTINGS TAB */}
+                  {activeTab === "account" && (
+                    <div key="account">
+                      <div className="ep2-sec-title">Account Settings</div>
+                      <p className="ep2-sec-desc">Manage your account settings and security options.</p>
+                      
+                      <div className="ep2-danger-zone">
+                        <div className="ep2-danger-title">
+                          <i className="feather-alert-triangle" style={{ fontSize: 20 }} />
+                          Danger Zone
+                        </div>
+                        <p className="ep2-danger-desc">
+                          Once you delete your account, there is no going back. All your data, including your profile information, listings, and activity history will be permanently removed.
+                        </p>
+                        <button 
+                          type="button" 
+                          className="ep2-btn-delete" 
+                          onClick={() => setShowDeleteModal(true)}
+                        >
+                          <i className="feather-trash-2" style={{ marginRight: 8, fontSize: 14 }} />
+                          Delete Account
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {showDeleteModal && (
+        <div className="ep2-modal-overlay" onClick={() => !isDeleting && setShowDeleteModal(false)}>
+          <div className="ep2-modal" onClick={e => e.stopPropagation()}>
+            <div className="ep2-modal-title">
+              <i className="feather-alert-circle" />
+              Delete Account?
+            </div>
+            <p className="ep2-modal-text">
+              This action cannot be undone. Your account and all associated data will be permanently deleted.
+            </p>
+            <div className="ep2-modal-warning">
+              ⚠️ <strong>Warning:</strong> You will lose access to all your properties, saved favorites, and profile information.
+            </div>
+            <div className="ep2-modal-actions">
+              <button 
+                className="ep2-modal-cancel" 
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button 
+                className={`ep2-modal-delete${isDeleting ? " loading" : ""}`}
+                onClick={handleDeleteAccount}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Yes, Delete Account"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

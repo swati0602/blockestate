@@ -7,6 +7,7 @@ import TopSeller from "./TopSeller";
 import Collection from "./Collection";
 import Footer from "./Footer";
 import Copyright from "./Copyright";
+export { default as GlobalLoader } from "./Loader/Loader";
 import Loader from "./Loader/Loader";
 
 export {

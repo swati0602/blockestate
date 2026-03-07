@@ -199,7 +199,6 @@ const Header = () => {
 
           {/* â”€â”€ RIGHT SIDE â”€â”€ */}
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginLeft: "auto" }}>
-
             {/* NOTIFICATION BELL */}
             <button
               onClick={handleBellClick}

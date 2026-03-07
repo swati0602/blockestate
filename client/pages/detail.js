@@ -91,12 +91,8 @@ const detail = () => {
   const buying = {
     productID: property?.productID,
     amount: property?.price,
-    owner: property?.owner,
   };
   const buyingProperty = async () => {
-    if (currentAccount?.toLowerCase() === property?.owner?.toLowerCase()) {
-      return;
-    }
     setBuyLoading(true);
     const data = await buyPropertyFunction(buying);
     setBuyLoading(false);

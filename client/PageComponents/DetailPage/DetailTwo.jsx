@@ -169,7 +169,7 @@ const DetailTwo = ({
                         >
                           Share
                         </button>
-                        {property?.owner?.toLowerCase() == address?.toLowerCase() && (
+                        {property?.owner == address && (
                           <button
                             type="button"
                             class="btn-setting-text report-text"
@@ -448,25 +448,22 @@ const DetailTwo = ({
                   </div>
 
                   <button
-                    onClick={() => address?.toLowerCase() !== property?.owner?.toLowerCase() && buyingProperty()}
+                    onClick={() => buyingProperty()}
                     type="button"
-                    disabled={address?.toLowerCase() === property?.owner?.toLowerCase()}
                     class="btn btn-primary-alta mt--30"
-                    style={address?.toLowerCase() === property?.owner?.toLowerCase() ? { opacity: 0.5, cursor: "not-allowed" } : {}}
                   >
                     {buyLoading ? (
                       <Loader />
                     ) : (
                       <>
-                        {address?.toLowerCase() === property?.owner?.toLowerCase()
-                          ? "You can't buy your own Property"
+                        {address == property?.owner
+                          ? "You can't buy your owned Property"
                           : `${property?.price} ETH Buy Property`}
                       </>
                     )}
                   </button>
 
-                  {/* ── Inline Add Comment ── only show for non-owners */}
-                  {address?.toLowerCase() !== property?.owner?.toLowerCase() && (
+                  {/* ── Inline Add Comment ── */}
                   <div style={{ marginTop: "24px", background: "#1a1a2e", borderRadius: "10px", padding: "20px", border: "1px solid #333" }}>
                     <h6 style={{ marginBottom: "12px", color: "#fff" }}>Add a Comment</h6>
                     <div style={{ marginBottom: "10px" }}>
@@ -501,7 +498,6 @@ const DetailTwo = ({
                       {commentLoading ? <Loader /> : "Submit Comment"}
                     </button>
                   </div>
-                  )}
                 </div>
               </div>
             </div>
