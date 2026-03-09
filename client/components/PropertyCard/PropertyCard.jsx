@@ -243,6 +243,10 @@ const PropertyCard = ({ card = {}, onClick, index = 0 }) => {
             display: "block",
             transformOrigin: "center center",
           }}
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = `/portfolio/portfolio-0${((index % 8) + 1).toString().padStart(2, "0")}.jpg`;
+          }}
         />
 
         {/* dark overlay on hover */}

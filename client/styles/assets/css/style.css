@@ -66,16 +66,17 @@
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css");
 
 :root {
-  --color-primary: #00a3ff;
-  --color-primary-alta: #212e48;
+  --color-primary: #8b5cf6;
+  --color-primary-alta: #1e1040;
   --color-gray: #f6f6f6;
   --color-gray-2: #f5f8fa;
   --color-subtitle: #f9004d;
-  --background-color-1: #1a1a2e57;
+  --background-color-1: #1a0f2e57;
   --background-color-2: #0a0a14;
   --background-color-3: #0f0f1a;
-  --background-color-4: #1a1a2e;
-  --gradient-one: linear-gradient(to right bottom, #2899d8, #00a3ff);
+  --background-color-4: #1a0f2e;
+  --gradient-one: linear-gradient(to right bottom, #7c3aed, #8b5cf6);
+  --color-purple-dark: #6d28d9;
   --color-heading: #ffffff;
   --color-body: #acacac;
   --color-dark: #1d1d1d;
@@ -14121,7 +14122,7 @@ span.rn-badge-card::before {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #00a3ff24;
+  border-bottom: 1px solid #8b5cf624;
   padding: 15px 0;
 }
 
@@ -14828,7 +14829,7 @@ iframe {
   content: "";
   position: absolute;
   top: 50%;
-  border-top: 1px solid #212e48;
+  border-top: 1px solid #1e1040;
   left: -45px;
   width: 45px;
 }
@@ -17712,7 +17713,7 @@ figcaption {
   border-radius: 2px;
   right: 0;
   top: 5px;
-  background: #212e487a;
+  background: #1e10407a;
 }
 
 .single-banner-shape-card .trading::after {
@@ -17723,7 +17724,7 @@ figcaption {
   border-radius: 2px;
   right: 0;
   bottom: 5px;
-  background: #00a3ff45;
+  background: #8b5cf645;
 }
 
 .single-banner-shape-card .trading .icone-name {

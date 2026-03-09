@@ -88,23 +88,22 @@ const Statistick = () => {
   ];
 
   return (
-    <div style={{ padding: "56px 0 64px" }}>
+    <div style={{ background: "#0a0a14", padding: "0 0 90px" }}>
       <div className="container">
 
+        {/* Divider */}
+        <div style={{ height: "1px", background: "linear-gradient(90deg, transparent, rgba(139,92,246,0.2), transparent)", marginBottom: "64px" }} />
+
         {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: "8px",
-            background: "rgba(0,255,163,0.08)", border: "1px solid rgba(0,255,163,0.2)",
-            borderRadius: "50px", padding: "4px 16px", marginBottom: "14px",
-          }}>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#00FFA3", boxShadow: "0 0 8px #00FFA3", display: "inline-block" }} />
-            <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#00FFA3", letterSpacing: "0.08em", textTransform: "uppercase" }}>Live On-Chain Data</span>
+        <div style={{ textAlign: "center", marginBottom: "48px" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(0,255,163,0.07)", border: "1px solid rgba(0,255,163,0.16)", borderRadius: "30px", padding: "5px 16px", marginBottom: "18px" }}>
+            <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#00FFA3", boxShadow: "0 0 8px #00FFA3", display: "inline-block" }} />
+            <span style={{ fontSize: "11px", fontWeight: 700, color: "#00FFA3", letterSpacing: "2px", textTransform: "uppercase" }}>Live On-Chain Data</span>
           </div>
-          <h3 style={{ margin: "0 0 10px", fontSize: "clamp(1.6rem, 3vw, 2.2rem)", fontWeight: 800 }}>
+          <h2 style={{ margin: "0 0 12px", fontSize: "clamp(1.8rem, 4vw, 2.6rem)", fontWeight: 800, background: "linear-gradient(120deg, #fff 40%, #a78bfa 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
             Platform Statistics
-          </h3>
-          <p style={{ margin: 0, color: "rgba(200,215,225,0.45)", fontSize: "1rem" }}>
+          </h2>
+          <p style={{ margin: 0, color: "rgba(255,255,255,0.36)", fontSize: "15px" }}>
             Real numbers, sourced directly from the blockchain
           </p>
         </div>
@@ -112,50 +111,24 @@ const Statistick = () => {
         {/* Stat cards */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "20px" }}>
           {cards.map((card, i) => (
-            <div key={i} style={{
-              background: "rgba(255,255,255,0.03)",
-              border: `1px solid ${card.color}22`,
-              borderRadius: "16px",
-              padding: "28px 24px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "10px",
-              boxShadow: `0 0 24px ${card.glow}`,
-              transition: "transform 0.2s ease, box-shadow 0.2s ease",
-            }}>
-              {/* icon circle */}
-              <div style={{
-                width: 48, height: 48, borderRadius: "50%",
-                background: card.glow,
-                border: `1px solid ${card.color}44`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                color: card.color,
-              }}>
+            <div
+              key={i}
+              style={{ background: "#0f0f1a", border: `1px solid ${card.color}1a`, borderRadius: "18px", padding: "32px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", position: "relative", overflow: "hidden", transition: "transform 0.25s, box-shadow 0.25s" }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-5px)"; e.currentTarget.style.boxShadow = `0 16px 40px ${card.glow}`; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
+            >
+              {/* Subtle glow overlay */}
+              <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at top, ${card.glow} 0%, transparent 65%)`, pointerEvents: "none" }} />
+              {/* Icon */}
+              <div style={{ width: "52px", height: "52px", borderRadius: "14px", background: card.glow, border: `1px solid ${card.color}28`, display: "flex", alignItems: "center", justifyContent: "center", color: card.color, position: "relative" }}>
                 {card.icon}
               </div>
-
-              {/* value */}
-              <div style={{
-                fontSize: "2.8rem",
-                fontWeight: 900,
-                lineHeight: 1,
-                background: `linear-gradient(135deg, ${card.color}, white)`,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}>
+              {/* Value */}
+              <div style={{ fontSize: "3rem", fontWeight: 900, lineHeight: 1, background: `linear-gradient(135deg, ${card.color}, #ffffff)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", position: "relative" }}>
                 {card.value}
               </div>
-
-              {/* label */}
-              <div style={{
-                fontSize: "0.88rem",
-                fontWeight: 500,
-                color: "rgba(200,215,225,0.5)",
-                textAlign: "center",
-                letterSpacing: "0.02em",
-              }}>
+              {/* Label */}
+              <div style={{ fontSize: "12px", fontWeight: 600, color: "rgba(255,255,255,0.38)", textAlign: "center", letterSpacing: "0.5px", position: "relative" }}>
                 {card.label}
               </div>
             </div>

@@ -16,495 +16,443 @@ const DetailTwo = ({
   commentLoading,
 }) => {
   const [activeTab, setActiveTab] = useState("details");
-  return (
-    <div class="product-details-area rn-section-gapTop">
-      <div class="container">
-        <div class="row g-5">
-          <div class="col-lg-7 col-md-12 col-sm-12">
-            <div class="product-tab-wrapper rbt-sticky-top-adjust">
-              <div class="pd-tab-inner">
-                <div
-                  class="nav rn-pd-nav rn-pd-rt-content nav-pills"
-                  id="v-pills-tab"
-                  role="tablist"
-                  aria-orientation="vertical"
-                >
-                  <button
-                    class="nav-link active"
-                    id="v-pills-home-tab"
-                    data-bs-toggle="pill"
-                    data-bs-target="#v-pills-home"
-                    type="button"
-                    role="tab"
-                    aria-controls="v-pills-home"
-                    aria-selected="true"
-                  >
-                    <span class="rn-pd-sm-thumbnail">
-                      <img
-                        src="/portfolio/portfolio-01.jpg"
-                        alt="Nft_Profile"
-                      />
-                    </span>
-                  </button>
-                  <button
-                    class="nav-link"
-                    id="v-pills-profile-tab"
-                    data-bs-toggle="pill"
-                    data-bs-target="#v-pills-profile"
-                    type="button"
-                    role="tab"
-                    aria-controls="v-pills-profile"
-                    aria-selected="false"
-                  >
-                    <span class="rn-pd-sm-thumbnail">
-                      <img
-                        src="/portfolio/portfolio-02.jpg"
-                        alt="Nft_Profile"
-                      />
-                    </span>
-                  </button>
-                  <button
-                    class="nav-link"
-                    id="v-pills-messages-tab"
-                    data-bs-toggle="pill"
-                    data-bs-target="#v-pills-messages"
-                    type="button"
-                    role="tab"
-                    aria-controls="v-pills-messages"
-                    aria-selected="false"
-                  >
-                    <span class="rn-pd-sm-thumbnail">
-                      <img
-                        src="/portfolio/portfolio-03.jpg"
-                        alt="Nft_Profile"
-                      />
-                    </span>
-                  </button>
-                </div>
+  const [imgIndex, setImgIndex] = useState(0);
 
-                <div class="tab-content rn-pd-content" id="v-pills-tabContent">
-                  <div
-                    class="tab-pane fade show active"
-                    id="v-pills-home"
-                    role="tabpanel"
-                    aria-labelledby="v-pills-home-tab"
-                  >
-                    <div class="rn-pd-thumbnail">
-                      {isLoading ? (
-                        <Loader />
-                      ) : (
-                        <img src={property?.image} alt="Nft_Profile" />
-                      )}
-                    </div>
+  // ── Parse encoded description ───────────────────────────────────
+  const rawDesc = property?.description || "";
+  const descParts = rawDesc.split("---");
+  const cleanDescription = descParts[0]?.trim() || "";
+
+  let bedrooms = null, bathrooms = null, area = null;
+  if (descParts.length > 1) {
+    const detailsLine = descParts[1].split("||")[0].trim();
+    const bedsMatch = detailsLine.match(/Bedrooms:\s*(\d+)/);
+    const bathsMatch = detailsLine.match(/Bathrooms:\s*(\d+)/);
+    const areaMatch = detailsLine.match(/Area:\s*([\d.]+)/);
+    bedrooms = bedsMatch ? bedsMatch[1] : null;
+    bathrooms = bathsMatch ? bathsMatch[1] : null;
+    area = areaMatch ? areaMatch[1] : null;
+  }
+
+  let allImages = [property?.image].filter(Boolean);
+  const extraImagesMatch = rawDesc.match(/\|\|EXTRA_IMAGES:([^|\n]+)/);
+  if (extraImagesMatch) {
+    const extraUrls = extraImagesMatch[1].split(",").filter(Boolean);
+    allImages = [...allImages, ...extraUrls];
+  }
+
+  let city = null, state = null, country = null, zipCode = null;
+  const locationMatch = rawDesc.match(/\|\|LOCATION:([^|\n]+)/);
+  if (locationMatch) {
+    const parts = locationMatch[1].split(",");
+    city = parts[0]?.trim() || null;
+    state = parts[1]?.trim() || null;
+    country = parts[2]?.trim() || null;
+    zipCode = parts[3]?.trim() || null;
+  }
+
+  let rentalPrice = null;
+  const rentalMatch = rawDesc.match(/\|\|RENTAL:([^|\n]+)/);
+  if (rentalMatch) rentalPrice = rentalMatch[1].trim();
+
+  const locationDisplay = [city, state, country].filter(Boolean).join(", ") || property?.address || "-";
+
+  const card = {
+    background: "#0f0f1a",
+    borderRadius: "16px",
+    border: "1px solid rgba(139, 92, 246, 0.12)",
+    boxShadow: "0 8px 40px rgba(0, 0, 0, 0.4)",
+  };
+
+  return (
+    <section style={{ padding: "50px 0 70px" }}>
+      <div className="container">
+        <div className="row g-4" style={{ alignItems: "flex-start" }}>
+
+          {/* LEFT PANEL */}
+          <div className="col-lg-7 col-md-12 col-sm-12">
+            <div style={{ ...card, overflow: "hidden" }}>
+              <div style={{ position: "relative", height: "420px", background: "#0a0a14" }}>
+                {isLoading ? (
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "420px" }}>
+                    <Loader />
                   </div>
-                  <div
-                    class="tab-pane fade"
-                    id="v-pills-profile"
-                    role="tabpanel"
-                    aria-labelledby="v-pills-profile-tab"
-                  >
-                    <div class="rn-pd-thumbnail">
+                ) : (
+                  <>
+                    {allImages[imgIndex] ? (
                       <img
-                        src="/portfolio/portfolio-02.jpg"
-                        alt="Nft_Profile"
+                        src={allImages[imgIndex]}
+                        alt={property?.title || "Property"}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = `/portfolio/portfolio-0${((imgIndex % 8) + 1).toString().padStart(2, "0")}.jpg`;
+                        }}
                       />
+                    ) : (
+                      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#1a0f2e" }}>
+                        <span style={{ color: "#acacac", fontSize: "14px" }}>No image available</span>
+                      </div>
+                    )}
+                    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "160px", background: "linear-gradient(to top, rgba(15,15,26,0.95) 0%, transparent 100%)", pointerEvents: "none" }} />
+                    <div style={{ position: "absolute", top: "16px", left: "16px", background: "#1e1040", border: "1px solid rgba(139, 92, 246, 0.3)", borderRadius: "6px", padding: "5px 14px", fontSize: "11px", color: "#8b5cf6", fontWeight: "700", letterSpacing: "1px", textTransform: "uppercase" }}>
+                      {property?.category || "Property"}
                     </div>
-                  </div>
-                  <div
-                    class="tab-pane fade"
-                    id="v-pills-messages"
-                    role="tabpanel"
-                    aria-labelledby="v-pills-messages-tab"
-                  >
-                    <div class="rn-pd-thumbnail">
-                      <img
-                        src="/portfolio/portfolio-03.jpg"
-                        alt="Nft_Profile"
-                      />
+                    <div style={{ position: "absolute", top: "16px", right: "16px", background: "rgba(10,10,20,0.85)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "6px", padding: "4px 12px", fontSize: "11px", color: "#acacac", fontWeight: "600" }}>
+                      #{property?.productID}
                     </div>
+                    {allImages.length > 1 && (
+                      <>
+                        <button
+                          onClick={() => setImgIndex((i) => Math.max(0, i - 1))}
+                          disabled={imgIndex === 0}
+                          style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.55)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "50%", width: "36px", height: "36px", color: "#fff", fontSize: "18px", cursor: imgIndex === 0 ? "not-allowed" : "pointer", opacity: imgIndex === 0 ? 0.35 : 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          &#8249;
+                        </button>
+                        <button
+                          onClick={() => setImgIndex((i) => Math.min(allImages.length - 1, i + 1))}
+                          disabled={imgIndex === allImages.length - 1}
+                          style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.55)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "50%", width: "36px", height: "36px", color: "#fff", fontSize: "18px", cursor: imgIndex === allImages.length - 1 ? "not-allowed" : "pointer", opacity: imgIndex === allImages.length - 1 ? 0.35 : 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          &#8250;
+                        </button>
+                        <div style={{ position: "absolute", bottom: "54px", right: "16px", background: "rgba(0,0,0,0.55)", borderRadius: "20px", padding: "3px 10px", fontSize: "11px", color: "#acacac" }}>
+                          {imgIndex + 1} / {allImages.length}
+                        </div>
+                      </>
+                    )}
+                    {/* Location + Interested overlay */}
+                    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "18px 20px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+                      <div>
+                        <p style={{ color: "#acacac", fontSize: "10px", margin: "0 0 3px", letterSpacing: "1px", textTransform: "uppercase" }}>Location</p>
+                        <p style={{ color: "#fff", fontSize: "13px", margin: "0", fontWeight: "500" }}>{locationDisplay}</p>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <p style={{ color: "#acacac", fontSize: "10px", margin: "0 0 3px", letterSpacing: "1px", textTransform: "uppercase" }}>Interested</p>
+                        <p style={{ color: "#8b5cf6", fontSize: "18px", fontWeight: "700", margin: "0", lineHeight: "1" }}>{property?.reviewers?.length || 0}</p>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+              <div style={{ padding: "20px 24px", borderTop: "1px solid rgba(139, 92, 246, 0.08)" }}>
+                {property?.title && (
+                  <h3 style={{ color: "#ffffff", fontSize: "20px", fontWeight: "800", margin: "0 0 10px", lineHeight: "1.3", letterSpacing: "-0.3px" }}>{property.title}</h3>
+                )}
+                <p style={{ color: "#acacac", fontSize: "11px", margin: "0 0 6px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase" }}>About This Property</p>
+                <p style={{ color: "#acacac", fontSize: "14px", lineHeight: "1.7", margin: "0" }}>{cleanDescription || "No description available."}</p>
+              </div>
+
+              {/* Specs strip */}
+              {(bedrooms || bathrooms || area) && (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", borderTop: "1px solid rgba(139, 92, 246, 0.08)" }}>
+                  {[
+                    { label: "Bedrooms", value: bedrooms },
+                    { label: "Bathrooms", value: bathrooms },
+                    { label: "Area (sq.ft)", value: area },
+                  ].filter((s) => s.value).map(({ label, value }, idx, arr) => (
+                    <div key={label} style={{ padding: "14px 16px", textAlign: "center", borderRight: idx < arr.length - 1 ? "1px solid rgba(139, 92, 246, 0.06)" : "none" }}>
+                      <p style={{ color: "#fff", fontSize: "20px", fontWeight: "800", margin: "0 0 3px", lineHeight: "1" }}>{value}</p>
+                      <p style={{ color: "#acacac", fontSize: "10px", margin: "0", textTransform: "uppercase", letterSpacing: "1px", fontWeight: "700" }}>{label}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Location details */}
+              {(property?.address || city || state || country || zipCode) && (
+                <div style={{ padding: "16px 24px 20px" }}>
+                  <p style={{ color: "#acacac", fontSize: "11px", margin: "0 0 10px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase" }}>Property Location</p>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "8px" }}>
+                    {[
+                      { label: "Address", value: property?.address },
+                      { label: "City", value: city },
+                      { label: "State / Province", value: state },
+                      { label: "Country", value: country },
+                      { label: "Zip Code", value: zipCode },
+                    ].filter((l) => l.value).map(({ label, value }) => (
+                      <div key={label} style={{ background: "#0a0a14", border: "1px solid rgba(139, 92, 246, 0.06)", borderRadius: "8px", padding: "10px 14px" }}>
+                        <p style={{ color: "#acacac", fontSize: "9px", margin: "0 0 3px", textTransform: "uppercase", letterSpacing: "1px", fontWeight: "700" }}>{label}</p>
+                        <p style={{ color: "#fff", fontSize: "13px", margin: "0", fontWeight: "500" }}>{value}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
+              )}
+
             </div>
           </div>
 
-          <div class="col-lg-5 col-md-12 col-sm-12 mt_md--50 mt_sm--60">
-            <div class="rn-pd-content-area">
-              <div class="pd-title-area">
-                <h4 class="title">{property?.title?.slice(0, 25)}..</h4>
-                <div class="pd-react-area">
-                  <div class="heart-count">
-                    <span>{parsedReviews?.length}</span>
-                  </div>
-                  <div class="count">
-                    <div class="share-btn share-btn-activation dropdown">
-                      <button
-                        class="icon"
-                        type="button"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      >
-                        <svg
-                          viewBox="0 0 14 4"
-                          fill="none"
-                          width="16"
-                          height="16"
-                          class="sc-bdnxRM sc-hKFxyN hOiKLt"
-                        >
-                          <path
-                            fill-rule="evenodd"
-                            clip-rule="evenodd"
-                            d="M3.5 2C3.5 2.82843 2.82843 3.5 2 3.5C1.17157 3.5 0.5 2.82843 0.5 2C0.5 1.17157 1.17157 0.5 2 0.5C2.82843 0.5 3.5 1.17157 3.5 2ZM8.5 2C8.5 2.82843 7.82843 3.5 7 3.5C6.17157 3.5 5.5 2.82843 5.5 2C5.5 1.17157 6.17157 0.5 7 0.5C7.82843 0.5 8.5 1.17157 8.5 2ZM11.999 3.5C12.8274 3.5 13.499 2.82843 13.499 2C13.499 1.17157 12.8274 0.5 11.999 0.5C11.1706 0.5 10.499 1.17157 10.499 2C10.499 2.82843 11.1706 3.5 11.999 3.5Z"
-                            fill="currentColor"
-                          ></path>
-                        </svg>
-                      </button>
+          {/* RIGHT PANEL */}
+          <div className="col-lg-5 col-md-12 col-sm-12">
+            <div style={{ ...card, padding: "28px" }}>
 
-                      <div class="share-btn-setting dropdown-menu dropdown-menu-end">
-                        <button
-                          type="button"
-                          class="btn-setting-text share-text"
-                          data-bs-toggle="modal"
-                          data-bs-target="#shareModal"
-                        >
-                          Share
-                        </button>
-                        {property?.owner == address && (
-                          <button
-                            type="button"
-                            class="btn-setting-text report-text"
-                            data-bs-toggle="modal"
-                            data-bs-target="#reportModal"
-                          >
-                            Update Price
-                          </button>
-                        )}
-                      </div>
-                    </div>
+              {/* Property name + location header */}
+              <div style={{ marginBottom: "20px", paddingBottom: "18px", borderBottom: "1px solid rgba(139, 92, 246, 0.12)" }}>
+                <h2 style={{ fontSize: "22px", fontWeight: "800", color: "#fff", margin: "0 0 8px", lineHeight: "1.25", letterSpacing: "-0.3px" }}>
+                  {property?.title || "Property"}
+                </h2>
+                {locationDisplay !== "-" && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <span style={{ color: "#8b5cf6", fontSize: "13px" }}>&#9679;</span>
+                    <span style={{ color: "#acacac", fontSize: "13px", fontWeight: "500" }}>{locationDisplay}</span>
                   </div>
+                )}
+              </div>
+
+              {/* Header badge */}
+              <div style={{ marginBottom: "16px" }}>
+                <span style={{ background: "#1e1040", border: "1px solid rgba(139, 92, 246, 0.2)", borderRadius: "6px", padding: "4px 12px", fontSize: "11px", color: "#8b5cf6", fontWeight: "700", letterSpacing: "1px", textTransform: "uppercase" }}>
+                  #{property?.productID}
+                </span>
+              </div>
+
+              {/* Title hidden – shown at top header above */}
+
+              {/* Stats */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "20px" }}>
+                <div style={{ background: "#1a0f2e", border: "1px solid rgba(139, 92, 246, 0.12)", borderRadius: "10px", padding: "14px", textAlign: "center" }}>
+                  <p style={{ color: "#acacac", fontSize: "10px", margin: "0 0 5px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px" }}>Interested</p>
+                  <p style={{ color: "#8b5cf6", fontSize: "22px", fontWeight: "800", margin: "0", lineHeight: "1" }}>{property?.reviewers?.length || 0}</p>
+                </div>
+                <div style={{ background: "#1a0f2e", border: "1px solid rgba(139, 92, 246, 0.12)", borderRadius: "10px", padding: "14px", textAlign: "center" }}>
+                  <p style={{ color: "#acacac", fontSize: "10px", margin: "0 0 5px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px" }}>Reviews</p>
+                  <p style={{ color: "#8b5cf6", fontSize: "22px", fontWeight: "800", margin: "0", lineHeight: "1" }}>{parsedReviews?.length || 0}</p>
                 </div>
               </div>
 
-              <h6 class="title-name">
-                #{property?.productID} Portal , Info bellow
-              </h6>
-              <div class="catagory-collection">
-                <div class="catagory">
-                  <span>
-                    Catagory <span class="color-body">10% royalties</span>
-                  </span>
-                  <div class="top-seller-inner-one">
-                    <div class="top-seller-wrapper">
-                      <div class="thumbnail">
-                        <a href="#">
-                          <img src="/client/client-1.png" alt="Nft_Profile" />
-                        </a>
-                      </div>
-                      <div class="top-seller-content">
-                        <a href="#">
-                          <h6 class="name">Only 10% Own</h6>
-                        </a>
-                      </div>
-                    </div>
+              {/* Price */}
+              <div style={{ background: "#1a0f2e", border: "1px solid rgba(139, 92, 246, 0.18)", borderRadius: "12px", padding: "16px 20px", marginBottom: rentalPrice ? "10px" : "22px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <p style={{ color: "#acacac", fontSize: "10px", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "2px", fontWeight: "700" }}>Sale Price</p>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: "6px" }}>
+                    <span style={{ fontSize: "26px", fontWeight: "800", color: "#8b5cf6", lineHeight: "1" }}>{property?.price}</span>
+                    <span style={{ fontSize: "13px", fontWeight: "600", color: "#acacac" }}>ETH</span>
                   </div>
                 </div>
-                <div class="collection">
-                  <span>Collections</span>
-                  <div class="top-seller-inner-one">
-                    <div class="top-seller-wrapper">
-                      <div class="thumbnail">
-                        <a href="#">
-                          <img src="/client/client-2.png" alt="Nft_Profile" />
-                        </a>
-                      </div>
-                      <div class="top-seller-content">
-                        <a href="#">
-                          <h6 class="name">{property?.category}</h6>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
+                <div style={{ width: "42px", height: "42px", borderRadius: "50%", background: "#1e1040", border: "1px solid rgba(139, 92, 246, 0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ color: "#8b5cf6", fontWeight: "800", fontSize: "11px" }}>ETH</span>
                 </div>
               </div>
 
-              <div class="rn-bid-details">
-                <div class="tab-wrapper-one">
-                  <nav class="tab-button-one">
-                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                      <button
-                        type="button"
-                        className={`nav-link${activeTab === "comments" ? " active" : ""}`}
-                        onClick={() => setActiveTab("comments")}
-                      >
-                        Comments ({parsedReviews?.length || 0})
-                      </button>
-                      <button
-                        type="button"
-                        className={`nav-link${activeTab === "details" ? " active" : ""}`}
-                        onClick={() => setActiveTab("details")}
-                      >
-                        Details
-                      </button>
-                      <button
-                        type="button"
-                        className={`nav-link${activeTab === "interest" ? " active" : ""}`}
-                        onClick={() => setActiveTab("interest")}
-                      >
-                        Users Interest ({property?.reviewers?.length || 0})
-                      </button>
+              {/* Rental price */}
+              {rentalPrice && (
+                <div style={{ background: "#0d2020", border: "1px solid rgba(0, 212, 170, 0.2)", borderRadius: "12px", padding: "12px 20px", marginBottom: "22px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <p style={{ color: "#acacac", fontSize: "10px", margin: "0 0 4px", textTransform: "uppercase", letterSpacing: "2px", fontWeight: "700" }}>Rental Price</p>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: "6px" }}>
+                      <span style={{ fontSize: "20px", fontWeight: "800", color: "#00d4aa", lineHeight: "1" }}>{rentalPrice}</span>
+                      <span style={{ fontSize: "13px", fontWeight: "600", color: "#acacac" }}>ETH / month</span>
                     </div>
-                  </nav>
-                  <div class="tab-content rn-bid-content">
-
-                    {/* ── Comments ── */}
-                    {activeTab === "comments" && (
-                      <div class="tab-pane fade show active">
-                        {!parsedReviews?.length ? (
-                          <p style={{ color: "#aaa", padding: "16px 0" }}>No comments yet. Be the first to comment!</p>
-                        ) : (
-                          parsedReviews.map((review, i) => (
-                            <div
-                              key={i}
-                              class="top-seller-inner-one"
-                              onClick={() => setLikeReviews({ ...likeReviews, reviewIndex: review.reviewIndex })}
-                            >
-                              <div class="top-seller-wrapper">
-                                <div class="thumbnail">
-                                  <a href="#">
-                                    <img src={`/client/client-${(i % 15) + 1}.png`} alt="Nft_Profile" />
-                                  </a>
-                                </div>
-                                <div class="top-seller-content">
-                                  <span style={{ fontSize: "0.78rem", color: "#aaa" }}>
-                                    {review?.reviewer?.slice(0, 18)}...
-                                  </span>
-                                  <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "4px 0" }}>
-                                    <span style={{ color: "#f5c518", fontSize: "0.85rem" }}>
-                                      {"★".repeat(Number(review?.rating) || 0)}{"☆".repeat(5 - (Number(review?.rating) || 0))}
-                                    </span>
-                                    <div
-                                      class="react-area"
-                                      style={{ cursor: "pointer" }}
-                                      onClick={(e) => { e.stopPropagation(); likeReviewCall(property, i); }}
-                                    >
-                                      <svg viewBox="0 0 17 16" fill="none" width="14" height="14" class="sc-bdnxRM sc-hKFxyN kBvkOu">
-                                        <path d="M8.2112 14L12.1056 9.69231L14.1853 7.39185C15.2497 6.21455 15.3683 4.46116 14.4723 3.15121V3.15121C13.3207 1.46757 10.9637 1.15351 9.41139 2.47685L8.2112 3.5L6.95566 2.42966C5.40738 1.10976 3.06841 1.3603 1.83482 2.97819V2.97819C0.777858 4.36443 0.885104 6.31329 2.08779 7.57518L8.2112 14Z" stroke="currentColor" stroke-width="2"></path>
-                                      </svg>
-                                      <span class="number" style={{ fontSize: "0.78rem", marginLeft: "3px" }}>{review?.likes}</span>
-                                    </div>
-                                  </div>
-                                  <span class="count-number" style={{ fontSize: "0.88rem", color: "#ddd" }}>
-                                    {review?.comment}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    )}
-
-                    {/* ── Details ── */}
-                    {activeTab === "details" && (
-                      <div class="tab-pane fade show active">
-                        <div class="rn-pd-bd-wrapper">
-                          <div class="top-seller-inner-one">
-                            <h6 class="name-title">Owner</h6>
-                            <div class="top-seller-wrapper">
-                              <div class="thumbnail">
-                                <a href="#"><img src="/client/client-1.png" alt="Nft_Profile" /></a>
-                              </div>
-                              <div class="top-seller-content">
-                                <a href="#"><h6 class="name">{property?.owner?.slice(0, 20)}..</h6></a>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="rn-pd-sm-property-wrapper">
-                            <div class="pd-property-inner">
-                              <h6 class="pd-property-title">Title</h6>
-                              <span class="color-white value">{property?.title}</span>
-                            </div>
-                            <div class="pd-property-inner">
-                              <h6 class="pd-property-title">Description</h6>
-                              <span class="color-white value">{property?.description}</span>
-                            </div>
-                            <div class="pd-property-inner">
-                              <h6 class="pd-property-title">Address</h6>
-                              <span class="color-white value">{property?.address}</span>
-                            </div>
-                            <div class="pd-property-inner">
-                              <h6 class="pd-property-title">Price: {property?.price} ETH</h6>
-                            </div>
-                            <div class="pd-property-inner">
-                              <h6 class="pd-property-title">Property ID: {property?.productID}</h6>
-                            </div>
-                          </div>
-                          <div class="rn-pd-sm-property-wrapper">
-                            <h6 class="pd-property-title">Category</h6>
-                            <div class="catagory-wrapper">
-                              <div class="pd-property-inner">
-                                <span class="color-body type">TYPE</span>
-                                <span class="color-white value">{property?.category}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* ── Users Interest ── */}
-                    {activeTab === "interest" && (
-                      <div class="tab-pane fade show active">
-                        {!property?.reviewers?.length ? (
-                          <p style={{ color: "#aaa", padding: "16px 0" }}>No users have shown interest yet.</p>
-                        ) : (
-                          <>
-                            <p style={{ color: "#aaa", fontSize: "0.85rem", marginBottom: "12px" }}>
-                              {property.reviewers.length} user{property.reviewers.length !== 1 ? "s" : ""} interested
-                            </p>
-                            {property.reviewers.map((reviewer, i) => {
-                              const totalLikes = parsedReviews
-                                ?.filter((r) => r.reviewer?.toLowerCase() === reviewer?.toLowerCase())
-                                .reduce((acc, r) => acc + Number(r.likes || 0), 0);
-                              return (
-                                <div key={i} class="top-seller-inner-one">
-                                  <div class="top-seller-wrapper">
-                                    <div class="thumbnail">
-                                      <a href="#"><img src={`/client/client-${(i % 15) + 1}.png`} alt="Nft_Profile" /></a>
-                                    </div>
-                                    <div class="top-seller-content">
-                                      <span class="count-number">{reviewer?.slice(0, 25)}...</span>
-                                      <span style={{ fontSize: "0.78rem", color: "#aaa" }}>
-                                        {totalLikes > 0 ? `${totalLikes} like${totalLikes !== 1 ? "s" : ""}` : "No likes yet"}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </>
-                        )}
-                      </div>
-                    )}
-
+                  </div>
+                  <div style={{ width: "38px", height: "38px", borderRadius: "50%", background: "#0f2a26", border: "1px solid rgba(0, 212, 170, 0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ color: "#00d4aa", fontWeight: "800", fontSize: "10px" }}>RENT</span>
                   </div>
                 </div>
-                <div class="place-bet-area">
-                  <div class="rn-bet-create">
-                    <div class="bid-list winning-bid">
-                      <h6 class="title">Recent Comment</h6>
-                      {parsedReviews
-                        ?.reverse()
-                        .map((recentReview, i) => (
-                          <div class="top-seller-inner-one">
-                            <div class="top-seller-wrapper">
-                              <div class="thumbnail">
-                                <a href="#">
-                                  <img
-                                    src="/client/client-7.png"
-                                    alt="Nft_Profile"
-                                  />
-                                </a>
-                              </div>
-                              <div class="top-seller-content">
-                                <span class="heighest-bid">
-                                  {recentReview?.reviewer.slice(0, 20)}...
-                                </span>
-                                <span class="count-number">
-                                  {" "}
-                                  {recentReview?.comment.length >= 50
-                                    ? `${recentReview?.comment.slice(0, 60)}...`
-                                    : recentReview?.comment}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                        .slice(0, 1)}
-                    </div>
-                    <div class="bid-list left-bid">
-                      <h6 class="title">Property Stats</h6>
-                      <div class=" mt--15" data-date="2025-12-09">
-                        <div class="countdown-container days">
-                          <span class="countdown-value">Price: </span>
-                          <span class="countdown-heading">
-                            {property?.price} ETH
-                          </span>
-                        </div>
-                        <div class="countdown-container hours">
-                          <span class="countdown-value">Comments: </span>
-                          <span class="countdown-heading">
-                            {parsedReviews?.length}
-                          </span>
-                        </div>
-                        <div class="countdown-container minutes">
-                          <span class="countdown-value"> Interest: </span>
-                          <span class="countdown-heading">
-                            {parsedReviews?.length}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+              )}
 
+              {/* Tabs */}
+              <div style={{ display: "flex", gap: "2px", background: "#0a0a14", borderRadius: "10px", padding: "3px", marginBottom: "16px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                {["comments", "details", "interest"].map((tab) => (
                   <button
-                    onClick={() => buyingProperty()}
+                    key={tab}
                     type="button"
-                    class="btn btn-primary-alta mt--30"
+                    onClick={() => setActiveTab(tab)}
+                    style={{
+                      flex: 1,
+                      padding: "8px 4px",
+                      background: activeTab === tab ? "#1a0f2e" : "transparent",
+                      color: activeTab === tab ? "#8b5cf6" : "#acacac",
+                      border: activeTab === tab ? "1px solid rgba(139, 92, 246, 0.2)" : "1px solid transparent",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      fontSize: "11px",
+                      fontWeight: "700",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      transition: "all 0.2s ease",
+                      whiteSpace: "nowrap",
+                    }}
                   >
-                    {buyLoading ? (
-                      <Loader />
-                    ) : (
-                      <>
-                        {address == property?.owner
-                          ? "You can't buy your owned Property"
-                          : `${property?.price} ETH Buy Property`}
-                      </>
-                    )}
+                    {tab === "comments" ? `Comments (${parsedReviews?.length || 0})` : tab === "interest" ? `Interest (${property?.reviewers?.length || 0})` : "Details"}
                   </button>
+                ))}
+              </div>
 
-                  {/* ── Inline Add Comment ── */}
-                  <div style={{ marginTop: "24px", background: "#1a1a2e", borderRadius: "10px", padding: "20px", border: "1px solid #333" }}>
-                    <h6 style={{ marginBottom: "12px", color: "#fff" }}>Add a Comment</h6>
-                    <div style={{ marginBottom: "10px" }}>
-                      <label style={{ fontSize: "0.8rem", color: "#aaa", display: "block", marginBottom: "4px" }}>Rating (1–5)</label>
-                      <select
-                        onChange={(e) => handleFormFieldChange("rating", e)}
-                        style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "#0d0d1a", border: "1px solid #555", color: "#fff", fontSize: "0.9rem" }}
-                      >
-                        <option value="5">⭐⭐⭐⭐⭐ (5)</option>
-                        <option value="4">⭐⭐⭐⭐ (4)</option>
-                        <option value="3">⭐⭐⭐ (3)</option>
-                        <option value="2">⭐⭐ (2)</option>
-                        <option value="1">⭐ (1)</option>
-                      </select>
-                    </div>
-                    <div style={{ marginBottom: "12px" }}>
-                      <label style={{ fontSize: "0.8rem", color: "#aaa", display: "block", marginBottom: "4px" }}>Comment</label>
-                      <textarea
-                        rows={3}
-                        placeholder="Write your comment..."
-                        onChange={(e) => handleFormFieldChange("comment", e)}
-                        style={{ width: "100%", padding: "10px 12px", borderRadius: "6px", background: "#0d0d1a", border: "1px solid #555", color: "#fff", fontSize: "0.9rem", resize: "vertical" }}
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      class="btn btn-primary-alta"
-                      style={{ width: "100%" }}
-                      onClick={() => createReview()}
-                      disabled={commentLoading}
-                    >
-                      {commentLoading ? <Loader /> : "Submit Comment"}
-                    </button>
+              {/* Tab Content */}
+              <div style={{ marginBottom: "20px" }}>
+
+                {activeTab === "comments" && (
+                  <div>
+                    {!parsedReviews?.length ? (
+                      <p style={{ color: "#acacac", fontSize: "13px", textAlign: "center", padding: "20px 0", margin: "0" }}>No reviews yet. Be the first!</p>
+                    ) : (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "220px", overflowY: "auto" }}>
+                        {parsedReviews.map((review, i) => (
+                          <div key={i} style={{ background: "#0a0a14", border: "1px solid rgba(139, 92, 246, 0.08)", borderRadius: "10px", padding: "12px 14px" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "5px" }}>
+                              <p style={{ color: "#acacac", fontSize: "11px", margin: "0", fontFamily: "monospace" }}>{review?.reviewer?.slice(0, 20)}...</p>
+                              <span style={{ color: "#f59e0b", fontSize: "11px" }}>{"★".repeat(Number(review?.rating) || 0)}{"☆".repeat(5 - (Number(review?.rating) || 0))}</span>
+                            </div>
+                            <p style={{ color: "#fff", fontSize: "13px", margin: "0", lineHeight: "1.5" }}>{review?.comment}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
+                )}
+
+                {activeTab === "details" && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                    {[
+                      { label: "Owner", value: property?.owner ? `${property.owner.slice(0, 22)}...` : "-", accent: true },
+                      { label: "Title", value: property?.title || "-" },
+                      { label: "ID", value: `#${property?.productID ?? "-"}` },
+                      { label: "Category", value: property?.category || "-" },
+                      { label: "Sale Price", value: property?.price ? `${property.price} ETH` : "-" },
+                      rentalPrice ? { label: "Rental Price", value: `${rentalPrice} ETH/mo`, green: true } : null,
+                      bedrooms ? { label: "Bedrooms", value: bedrooms } : null,
+                      bathrooms ? { label: "Bathrooms", value: bathrooms } : null,
+                      area ? { label: "Area", value: `${area} sq.ft` } : null,
+                      property?.address ? { label: "Address", value: property.address } : null,
+                      city ? { label: "City", value: city } : null,
+                      state ? { label: "State", value: state } : null,
+                      country ? { label: "Country", value: country } : null,
+                      zipCode ? { label: "Zip Code", value: zipCode } : null,
+                    ].filter(Boolean).map(({ label, value, accent, green }) => (
+                      <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 12px", background: "#0a0a14", border: "1px solid rgba(139, 92, 246, 0.06)", borderRadius: "8px", gap: "10px" }}>
+                        <span style={{ color: "#acacac", fontSize: "11px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", flexShrink: 0 }}>{label}</span>
+                        <span style={{ color: accent ? "#8b5cf6" : green ? "#00d4aa" : "#fff", fontSize: "12px", fontWeight: "500", textAlign: "right", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "185px", fontFamily: accent ? "monospace" : "inherit" }}>{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {activeTab === "interest" && (
+                  <div>
+                    {!property?.reviewers?.length ? (
+                      <p style={{ color: "#acacac", fontSize: "13px", textAlign: "center", padding: "20px 0", margin: "0" }}>No users have shown interest yet.</p>
+                    ) : (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px", maxHeight: "220px", overflowY: "auto" }}>
+                        {property.reviewers.map((reviewer, i) => (
+                          <div key={i} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "9px 12px", background: "#0a0a14", border: "1px solid rgba(139, 92, 246, 0.06)", borderRadius: "8px" }}>
+                            <div style={{ width: "28px", height: "28px", borderRadius: "50%", background: "#1e1040", border: "1px solid rgba(139, 92, 246, 0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "#8b5cf6", fontSize: "11px", fontWeight: "700" }}>
+                              {i + 1}
+                            </div>
+                            <span style={{ color: "#acacac", fontSize: "11px", fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{reviewer}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+              </div>
+
+              {/* Buy Button */}
+              <button
+                onClick={() => buyingProperty()}
+                type="button"
+                disabled={address === property?.owner}
+                style={{
+                  width: "100%",
+                  padding: "14px",
+                  background: address === property?.owner ? "#1a0f2e" : "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
+                  color: address === property?.owner ? "#acacac" : "#fff",
+                  border: address === property?.owner ? "1px solid rgba(255,255,255,0.06)" : "none",
+                  borderRadius: "10px",
+                  fontSize: "14px",
+                  fontWeight: "700",
+                  cursor: address === property?.owner ? "not-allowed" : "pointer",
+                  letterSpacing: "0.5px",
+                  boxShadow: address === property?.owner ? "none" : "0 6px 24px rgba(139, 92, 246, 0.28)",
+                  transition: "all 0.3s ease",
+                }}
+              >
+                {buyLoading ? <Loader /> : address === property?.owner ? "You Own This Property" : `Buy for ${property?.price} ETH`}
+              </button>
+
+            </div>
+          </div>
+        </div>
+
+        {/* ── REVIEWS SECTION ─────────────────────────────────────── */}
+        <div style={{ marginTop: "60px", paddingTop: "50px", borderTop: "1px solid rgba(139, 92, 246, 0.1)" }}>
+          {/* Section header */}
+          <div style={{ marginBottom: "36px" }}>
+            <p style={{ color: "#8b5cf6", fontSize: "11px", fontWeight: "700", letterSpacing: "3px", textTransform: "uppercase", margin: "0 0 8px", opacity: 0.85 }}>Community Feedback</p>
+            <h2 style={{ fontSize: "28px", fontWeight: "800", color: "#fff", margin: "0", lineHeight: "1.2" }}>
+              Reviews &amp; Ratings
+              <span style={{ marginLeft: "12px", fontSize: "16px", color: "#8b5cf6", fontWeight: "600" }}>({parsedReviews?.length || 0})</span>
+            </h2>
+          </div>
+
+          <div className="row g-4">
+            {/* Left — existing reviews */}
+            <div className="col-lg-7 col-md-12">
+              {!parsedReviews?.length ? (
+                <div style={{ background: "#0f0f1a", border: "1px solid rgba(139, 92, 246, 0.1)", borderRadius: "16px", padding: "48px 32px", textAlign: "center" }}>
+                  <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "#1a0f2e", border: "1px solid rgba(139, 92, 246, 0.2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: "22px" }}>&#9733;</div>
+                  <p style={{ color: "#fff", fontSize: "16px", fontWeight: "700", margin: "0 0 6px" }}>No reviews yet</p>
+                  <p style={{ color: "#acacac", fontSize: "13px", margin: "0" }}>Be the first to share your thoughts about this property.</p>
                 </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                  {parsedReviews.map((review, i) => (
+                    <div key={i} style={{ background: "#0f0f1a", border: "1px solid rgba(139, 92, 246, 0.1)", borderRadius: "14px", padding: "20px 22px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                          <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#1a0f2e", border: "1px solid rgba(139, 92, 246, 0.25)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "#8b5cf6", fontSize: "12px", fontWeight: "800" }}>
+                            {i + 1}
+                          </div>
+                          <p style={{ color: "#8b5cf6", fontSize: "12px", margin: "0", fontFamily: "monospace", fontWeight: "600" }}>{review?.reviewer?.slice(0, 28)}...</p>
+                        </div>
+                        <span style={{ color: "#f59e0b", fontSize: "14px", letterSpacing: "1px", flexShrink: 0 }}>
+                          {"★".repeat(Number(review?.rating) || 0)}{"☆".repeat(5 - (Number(review?.rating) || 0))}
+                        </span>
+                      </div>
+                      <p style={{ color: "#acacac", fontSize: "14px", margin: "0", lineHeight: "1.65" }}>{review?.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Right — write a review */}
+            <div className="col-lg-5 col-md-12">
+              <div style={{ background: "#0f0f1a", border: "1px solid rgba(139, 92, 246, 0.12)", borderRadius: "16px", padding: "28px", position: "sticky", top: "24px" }}>
+                <h4 style={{ color: "#fff", fontSize: "18px", fontWeight: "800", margin: "0 0 6px" }}>Leave a Review</h4>
+                <p style={{ color: "#acacac", fontSize: "13px", margin: "0 0 24px" }}>Share your experience with this property.</p>
+
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={{ color: "#acacac", fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px", textTransform: "uppercase", display: "block", marginBottom: "8px" }}>Rating</label>
+                  <select onChange={(e) => handleFormFieldChange("rating", e)}
+                    style={{ width: "100%", padding: "12px 14px", background: "#0a0a14", border: "1px solid rgba(139, 92, 246, 0.18)", borderRadius: "10px", color: "#fff", fontSize: "14px", cursor: "pointer", outline: "none" }}>
+                    <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733; — Excellent</option>
+                    <option value="4">&#9733;&#9733;&#9733;&#9733;&#9734; — Very Good</option>
+                    <option value="3">&#9733;&#9733;&#9733;&#9734;&#9734; — Good</option>
+                    <option value="2">&#9733;&#9733;&#9734;&#9734;&#9734; — Fair</option>
+                    <option value="1">&#9733;&#9734;&#9734;&#9734;&#9734; — Poor</option>
+                  </select>
+                </div>
+
+                <div style={{ marginBottom: "20px" }}>
+                  <label style={{ color: "#acacac", fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px", textTransform: "uppercase", display: "block", marginBottom: "8px" }}>Your Comment</label>
+                  <textarea rows={5} placeholder="Share your thoughts about this property..."
+                    onChange={(e) => handleFormFieldChange("comment", e)}
+                    style={{ width: "100%", padding: "12px 14px", background: "#0a0a14", border: "1px solid rgba(139, 92, 246, 0.18)", borderRadius: "10px", color: "#fff", fontSize: "14px", resize: "vertical", fontFamily: "inherit", outline: "none", lineHeight: "1.6" }} />
+                </div>
+
+                <button type="button" disabled={commentLoading} onClick={() => createReview()}
+                  style={{ width: "100%", padding: "14px", background: commentLoading ? "#1a0f2e" : "linear-gradient(135deg, #8b5cf6, #6d28d9)", color: commentLoading ? "#acacac" : "#fff", border: commentLoading ? "1px solid rgba(139, 92, 246, 0.15)" : "none", borderRadius: "10px", fontSize: "14px", fontWeight: "700", cursor: commentLoading ? "not-allowed" : "pointer", letterSpacing: "0.3px", boxShadow: commentLoading ? "none" : "0 4px 20px rgba(139, 92, 246, 0.3)", transition: "all 0.3s ease" }}>
+                  {commentLoading ? <Loader /> : "Submit Review"}
+                </button>
               </div>
             </div>
           </div>
         </div>
+
       </div>
-    </div>
+    </section>
   );
 };
 

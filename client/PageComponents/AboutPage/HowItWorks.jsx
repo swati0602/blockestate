@@ -128,228 +128,119 @@ const TECH_STACK = [
 
 const HowItWorks = () => {
   return (
-    <>
-      {/* ── How It Works Steps ── */}
-      <div style={{ paddingTop: "48px", paddingBottom: "0" }}>
-        <div className="container">
-          <div className="row mb--30">
-            <div className="col-12 text-center">
-              <div style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                background: "rgba(123,97,255,0.1)",
-                border: "1px solid rgba(123,97,255,0.25)",
-                borderRadius: "50px",
-                padding: "4px 14px",
-                marginBottom: "12px",
-              }}>
-                <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#7B61FF", boxShadow: "0 0 8px #7B61FF", display: "inline-block" }} />
-                <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#7B61FF", letterSpacing: "0.08em", textTransform: "uppercase" }}>How It Works</span>
-              </div>
-              <h3 style={{ margin: 0 }}>BlockEstate in 6 Steps</h3>
-              <p
-                className="color-body mt--10"
-                style={{ maxWidth: 520, margin: "0.5rem auto 0", fontSize: "1rem" }}
-              >
-                From wallet connection to on-chain ownership — the complete journey.
-              </p>
+    <div style={{ background: "#0a0a14" }}>
+
+      {/* ── How It Works ── */}
+      <div style={{ position: "relative", padding: "80px 0", overflow: "hidden" }}>
+        {/* Glow blobs */}
+        <div style={{ position: "absolute", top: "-60px", right: "10%", width: "400px", height: "400px", background: "radial-gradient(circle, rgba(139,92,246,0.07) 0%, transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: "-60px", left: "5%", width: "360px", height: "360px", background: "radial-gradient(circle, rgba(0,217,255,0.06) 0%, transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
+
+        <div className="container" style={{ position: "relative", zIndex: 1 }}>
+          {/* Section header */}
+          <div style={{ textAlign: "center", marginBottom: "56px" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: "30px", padding: "5px 16px", marginBottom: "18px" }}>
+              <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#8b5cf6", boxShadow: "0 0 8px #8b5cf6", display: "inline-block" }} />
+              <span style={{ fontSize: "11px", fontWeight: 700, color: "#8b5cf6", letterSpacing: "2px", textTransform: "uppercase" }}>How It Works</span>
             </div>
+            <h2 style={{ margin: "0 0 14px", fontSize: "clamp(1.8rem, 4vw, 2.8rem)", fontWeight: 800, background: "linear-gradient(120deg, #fff 40%, #a78bfa 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              BlockEstate in 6 Steps
+            </h2>
+            <p style={{ margin: "0 auto", maxWidth: "480px", fontSize: "15px", color: "rgba(255,255,255,0.38)", lineHeight: 1.7 }}>
+              From wallet connection to on-chain ownership — the complete journey.
+            </p>
           </div>
 
-          <div className="row g-4">
+          {/* Steps grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "20px" }}>
             {STEPS.map((step, i) => (
-              <div className="col-lg-4 col-md-6" key={i}>
-                <div
-                  className="rn-about-card"
-                  style={{
-                    height: "100%",
-                    borderTop: `3px solid ${step.color}`,
-                    position: "relative",
-                    overflow: "hidden",
-                  }}
-                >
-                  {/* Step number watermark */}
-                  <span
-                    style={{
-                      position: "absolute",
-                      top: "-10px",
-                      right: "16px",
-                      fontSize: "5.3rem",
-                      fontWeight: 900,
-                      color: step.color,
-                      opacity: 0.08,
-                      lineHeight: 1,
-                      userSelect: "none",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    {step.number}
-                  </span>
-                  <div className="inner">
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.75rem",
-                        marginBottom: "1rem",
-                      }}
-                    >
-                      <span
-                        style={{
-                          background: step.color + "22",
-                          borderRadius: "50%",
-                          width: 48,
-                          height: 48,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: "1.7rem",
-                          flexShrink: 0,
-                        }}
-                      >
-                        {step.icon}
-                      </span>
-                      <span
-                        style={{
-                          fontSize: "1.05rem",
-                          fontWeight: 700,
-                          color: step.color,
-                          letterSpacing: "0.1em",
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        Step {step.number}
-                      </span>
-                    </div>
-                    <h5
-                      className="title"
-                      style={{ marginBottom: "0.75rem", fontSize: "1.3rem" }}
-                    >
-                      {step.title}
-                    </h5>
-                    <p
-                      className="color-body mb--0"
-                      style={{ fontSize: "1.18rem", lineHeight: 1.7 }}
-                    >
-                      {step.desc}
-                    </p>
-                  </div>
+              <div
+                key={i}
+                style={{ position: "relative", background: "#0f0f1a", border: `1px solid ${step.color}20`, borderTop: `3px solid ${step.color}`, borderRadius: "16px", padding: "28px 26px", overflow: "hidden", transition: "box-shadow 0.25s, transform 0.25s" }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 12px 40px ${step.color}18`; e.currentTarget.style.transform = "translateY(-4px)"; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "translateY(0)"; }}
+              >
+                {/* Watermark number */}
+                <span style={{ position: "absolute", top: "-8px", right: "16px", fontSize: "5.5rem", fontWeight: 900, color: step.color, opacity: 0.06, lineHeight: 1, userSelect: "none", pointerEvents: "none" }}>{step.number}</span>
+                {/* Icon + step label */}
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+                  <div style={{ width: "46px", height: "46px", borderRadius: "12px", background: `${step.color}18`, border: `1px solid ${step.color}30`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px", flexShrink: 0 }}>{step.icon}</div>
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: step.color, letterSpacing: "2px", textTransform: "uppercase" }}>Step {step.number}</span>
                 </div>
+                <h5 style={{ margin: "0 0 10px", fontSize: "16px", fontWeight: 800, color: "#f1f5f9" }}>{step.title}</h5>
+                <p style={{ margin: 0, fontSize: "13px", color: "rgba(255,255,255,0.42)", lineHeight: 1.78 }}>{step.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ── Tech Stack + Mission ── */}
-      <div style={{ paddingTop: "40px", paddingBottom: "48px" }}>
+      {/* ── Mission ── */}
+      <div style={{ padding: "0 0 80px" }}>
         <div className="container">
-          {/* divider */}
-          <div style={{
-            height: "1px",
-            background: "linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)",
-            marginBottom: "40px",
-          }} />
-          <div className="row g-3 align-items-start">
-            {/* Mission */}
-            <div className="col-12">
-              <div style={{ padding: "0 0 8px 0" }}>
+          <div style={{ height: "1px", background: "linear-gradient(90deg, transparent, rgba(139,92,246,0.18), transparent)", marginBottom: "70px" }} />
 
-                {/* eyebrow + headline */}
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
-                  <div style={{
-                    width: "3px", height: "36px", borderRadius: "4px",
-                    background: "linear-gradient(to bottom, #00FFA3, #00D9FF)",
-                    flexShrink: 0,
-                  }} />
-                  <h4 className="title" style={{ margin: 0, fontSize: "1.6rem" }}>Our Mission</h4>
-                </div>
-
-                {/* single tagline */}
-                <p style={{ fontSize: "1.05rem", color: "rgba(200,215,225,0.55)", lineHeight: 1.7, marginBottom: "24px", maxWidth: "620px" }}>
-                  Make real estate ownership borderless, transparent, and accessible to everyone — powered by blockchain.
-                </p>
-
-                {/* 3 minimal pillars */}
-                <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
-                  {[
-                    { icon: "🔓", title: "Open Access", text: "No banks. No paperwork. Anyone with a wallet can buy or list." },
-                    { icon: "🔗", title: "On-Chain Truth", text: "Every sale, every owner — permanently recorded on Ethereum." },
-                    { icon: "🌍", title: "Global Market", text: "List or invest in property from anywhere in the world." },
-                  ].map((p, i) => (
-                    <div key={i} style={{
-                      flex: "1 1 200px",
-                      background: "rgba(255,255,255,0.03)",
-                      border: "1px solid rgba(255,255,255,0.07)",
-                      borderRadius: "12px",
-                      padding: "18px 20px",
-                      display: "flex",
-                      gap: "14px",
-                      alignItems: "flex-start",
-                    }}>
-                      <span style={{ fontSize: "1.5rem", lineHeight: 1, flexShrink: 0 }}>{p.icon}</span>
-                      <div>
-                        <div style={{ fontWeight: 700, fontSize: "0.95rem", color: "#fff", marginBottom: "5px" }}>{p.title}</div>
-                        <div style={{ fontSize: "0.88rem", color: "rgba(200,215,225,0.5)", lineHeight: 1.6 }}>{p.text}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-              </div>
-            </div>
-
-            {/* Tech Stack */}
-            <div className="col-12" style={{ marginTop: "1rem" }}>
-              <h4 className="title" style={{ marginBottom: "0.5rem", fontSize: "1.5rem" }}>
-                Package Versions
-              </h4>
-              {/* horizontal card */}
-              <div style={{
-                display: "flex",
-                alignItems: "stretch",
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: "14px",
-                overflow: "hidden",
-                marginTop: "1rem",
-              }}>
-                {TECH_STACK.map((item, i) => (
-                  <React.Fragment key={i}>
-                    {i !== 0 && (
-                      <div style={{ width: "1px", background: "rgba(255,255,255,0.1)", margin: "16px 0" }} />
-                    )}
-                    <div style={{
-                      flex: 1,
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "8px",
-                      padding: "18px 8px",
-                    }}>
-                      {item.icon}
-                      <span style={{ fontSize: "1.15rem", fontWeight: 700, color: "#fff", lineHeight: 1 }}>
-                        {item.value}
-                      </span>
-                      <span style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.45)", fontWeight: 500 }}>
-                        {item.label}
-                      </span>
-                    </div>
-                  </React.Fragment>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "40px", alignItems: "center", marginBottom: "70px" }}>
+            {/* Left text */}
+            <div>
+              <p style={{ margin: "0 0 12px", fontSize: "11px", fontWeight: 700, letterSpacing: "3px", textTransform: "uppercase", color: "#00FFA3" }}>Our Mission</p>
+              <h2 style={{ margin: "0 0 18px", fontSize: "clamp(1.6rem, 3vw, 2.4rem)", fontWeight: 800, background: "linear-gradient(120deg, #fff 40%, #a5f3dc 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+                Real Estate for Everyone, Everywhere
+              </h2>
+              <p style={{ margin: "0 0 28px", fontSize: "15px", color: "rgba(255,255,255,0.42)", lineHeight: 1.8 }}>
+                Make real estate ownership borderless, transparent, and accessible to everyone — powered by the Ethereum blockchain.
+              </p>
+              <div style={{ height: "1px", background: "linear-gradient(90deg, rgba(0,255,163,0.3), transparent)", marginBottom: "28px" }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                {[
+                  { n: "01", text: "Eliminate the need for banks, brokers and paperwork" },
+                  { n: "02", text: "Give full ownership transparency via on-chain records" },
+                  { n: "03", text: "Enable global property investment with zero borders" },
+                ].map((item) => (
+                  <div key={item.n} style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                    <span style={{ fontSize: "12px", fontWeight: 800, color: "rgba(0,255,163,0.45)", fontFamily: "monospace", flexShrink: 0, minWidth: "22px" }}>{item.n}</span>
+                    <div style={{ flex: 1, height: "1px", background: "rgba(255,255,255,0.05)" }} />
+                    <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.52)", fontWeight: 500, textAlign: "right", maxWidth: "280px" }}>{item.text}</span>
+                  </div>
                 ))}
               </div>
-              <p style={{ marginTop: "1.25rem", fontSize: "0.9rem", color: "rgba(200,210,220,0.45)", lineHeight: 1.8 }}>
-                BlockEstate is built on Ethereum and powered by Solidity smart contracts. The frontend uses Next.js + React,
-                wallets connect via MetaMask &amp; Web3Modal, assets are stored on IPFS through Pinata, and all on-chain interactions
-                use ethers.js v5.
-              </p>
             </div>
+            {/* Right quote card */}
+            <div style={{ background: "#0f0f1a", border: "1px solid rgba(0,255,163,0.14)", borderRadius: "20px", padding: "36px 32px", position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", top: "-40px", right: "-40px", width: "200px", height: "200px", background: "radial-gradient(circle, rgba(0,255,163,0.08) 0%, transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
+              <div style={{ fontSize: "52px", color: "rgba(0,255,163,0.2)", lineHeight: 1, marginBottom: "16px", fontFamily: "Georgia, serif" }}>"</div>
+              <p style={{ margin: "0 0 28px", fontSize: "17px", fontWeight: 600, color: "rgba(255,255,255,0.72)", lineHeight: 1.8, fontStyle: "italic" }}>
+                The future of property ownership is decentralized, borderless, and belongs to everyone — not just the privileged few.
+              </p>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <div style={{ width: "38px", height: "38px", borderRadius: "50%", background: "linear-gradient(135deg, #00FFA3, #00D9FF)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px" }}>🏗</div>
+                <div>
+                  <p style={{ margin: 0, fontSize: "13px", fontWeight: 700, color: "#fff" }}>BlockEstate Team</p>
+                  <p style={{ margin: 0, fontSize: "11px", color: "rgba(255,255,255,0.33)" }}>Founders, 2024</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Tech Stack */}
+          <p style={{ margin: "0 0 20px", fontSize: "11px", fontWeight: 700, letterSpacing: "3px", textTransform: "uppercase", color: "#8b5cf6" }}>Tech Stack</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "1px", background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.1)", borderRadius: "16px", overflow: "hidden" }}>
+            {TECH_STACK.map((item, i) => (
+              <div
+                key={i}
+                style={{ background: "#0f0f1a", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", padding: "22px 10px", transition: "background 0.2s" }}
+                onMouseEnter={e => e.currentTarget.style.background = "rgba(139,92,246,0.08)"}
+                onMouseLeave={e => e.currentTarget.style.background = "#0f0f1a"}
+              >
+                {item.icon}
+                <span style={{ fontSize: "13px", fontWeight: 800, color: "#fff", lineHeight: 1 }}>{item.value}</span>
+                <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.33)", fontWeight: 600 }}>{item.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
