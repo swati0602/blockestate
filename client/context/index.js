@@ -495,6 +495,29 @@ export const StateContextProvider = ({ children }) => {
           image: property.images,
           address: property.propertyAddress,
         }));
+
+        try {
+          const response = await fetch("/api/properties");
+          if (response.ok) {
+            const json = await response.json();
+            const dbProperties = json.data || [];
+            const isSoldMap = {};
+
+            dbProperties.forEach((item) => {
+              if (item.tokenId != null) {
+                isSoldMap[item.tokenId] = item.isSold || false;
+              }
+            });
+
+            return parsedProperties?.map((property) => ({
+              ...property,
+              isSold: isSoldMap[property.productID] || false,
+            }));
+          }
+        } catch (dbError) {
+          console.log("MongoDB property merge failed", dbError);
+        }
+
         console.log(parsedProperties);
         return parsedProperties;
       }

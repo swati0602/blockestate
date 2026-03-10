@@ -119,6 +119,16 @@ const Product = ({ properties = [] }) => {
           return (
             <>
               {/* ── Listed section ── */}
+              <div style={{ width: "100%", margin: "0 0 28px", display: "flex", alignItems: "center", gap: "16px" }}>
+                <div style={{ flex: 1, height: "1px", background: "rgba(16,185,129,0.2)" }} />
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 18px", background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.25)", borderRadius: "50px" }}>
+                  <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#10b981" }} />
+                  <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#10b981", textTransform: "uppercase", letterSpacing: "1.5px" }}>Listed Properties</span>
+                  <span style={{ fontSize: "0.75rem", color: "rgba(16,185,129,0.65)", fontWeight: 600 }}>{listed.length}</span>
+                </div>
+                <div style={{ flex: 1, height: "1px", background: "rgba(16,185,129,0.2)" }} />
+              </div>
+
               <motion.div
                 className="row g-5"
                 initial="hidden"
