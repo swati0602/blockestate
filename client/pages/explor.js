@@ -10,7 +10,27 @@ const explor = () => {
   const { getPropertiesData } = useStateContext();
 
   useEffect(() => {
-    getPropertiesData().then((data) => setProperties(data || []));
+    const load = async () => {
+      const data = await getPropertiesData();
+      if (!data) return setProperties([]);
+
+      // Merge isSold from MongoDB
+      try {
+        const res = await fetch("/api/properties");
+        if (res.ok) {
+          const json = await res.json();
+          const dbList = json.data || json;
+          const isSoldMap = {};
+          dbList.forEach((p) => { if (p.tokenId != null) isSoldMap[p.tokenId] = p.isSold || false; });
+          setProperties(data.map((p) => ({ ...p, isSold: isSoldMap[p.productID] || false })));
+        } else {
+          setProperties(data);
+        }
+      } catch (_) {
+        setProperties(data);
+      }
+    };
+    load();
   }, []);
 
   return (

@@ -403,13 +403,54 @@ const PropertyCard = ({ card = {}, onClick, index = 0 }) => {
 
         {/* owner wallet */}
         {card.owner ? (
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "2px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px" }}>
             <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.28)", textTransform: "uppercase", letterSpacing: "0.07em", fontWeight: 600 }}>Owner</span>
             <span style={{ fontFamily: "monospace", fontSize: "0.82rem", color: "#a78bfa", background: "rgba(112,72,232,0.1)", padding: "2px 8px", borderRadius: "5px" }}>
               {card.owner.slice(0, 8)}&hellip;{card.owner.slice(-6)}
             </span>
           </div>
         ) : null}
+
+        {/* status badge */}
+        {card.isSold ? (
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            background: "rgba(220,38,38,0.12)",
+            border: "1px solid rgba(220,38,38,0.35)",
+            color: "#f87171",
+            borderRadius: "8px",
+            padding: "6px 12px",
+            fontSize: "0.85rem",
+            fontWeight: 700,
+            marginBottom: "6px",
+            letterSpacing: "0.5px",
+            textTransform: "uppercase",
+          }}>
+            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#f87171" }} />
+            SOLD
+          </div>
+        ) : (
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            background: "rgba(16,185,129,0.12)",
+            border: "1px solid rgba(16,185,129,0.35)",
+            color: "#10b981",
+            borderRadius: "8px",
+            padding: "6px 12px",
+            fontSize: "0.85rem",
+            fontWeight: 700,
+            marginBottom: "6px",
+            letterSpacing: "0.5px",
+            textTransform: "uppercase",
+          }}>
+            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10b981" }} />
+            LISTED
+          </div>
+        )}
 
         {/* stats */}
         <div style={{

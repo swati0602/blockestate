@@ -21,7 +21,11 @@ const Product = ({ properties = [] }) => {
   const router = useRouter();
   const { currentAccount } = useStateContext();
 
-  const source = [...properties].sort((a, b) => (b.productID || 0) - (a.productID || 0));
+  const source = [...properties].sort((a, b) => {
+    // Sort: listed (isSold=false) first, then sold (isSold=true)
+    if (a.isSold === b.isSold) return (b.productID || 0) - (a.productID || 0);
+    return (a.isSold ? 1 : 0) - (b.isSold ? 1 : 0);
+  });
 
   const cards = (activeCategory === "*"
     ? source
@@ -35,6 +39,7 @@ const Product = ({ properties = [] }) => {
     category: p.category || "",
     id: p.productID,
     owner: p.owner || "",
+    isSold: p.isSold || false,
   }));
 
   return (
@@ -108,20 +113,25 @@ const Product = ({ properties = [] }) => {
           </div>
         </div>
 
-        <motion.div
-          className="row g-5"
-          initial="hidden"
-          animate="visible"
-          variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
-        >
-          {cards.length > 0 ? (
-            cards.map((card, i) => {
-              const items = [];
+        {cards.length > 0 ? (() => {
+          const listed = cards.filter(c => !c.isSold);
+          const sold = cards.filter(c => c.isSold);
+          return (
+            <>
+              {/* ── Listed section ── */}
+              <motion.div
+                className="row g-5"
+                initial="hidden"
+                animate="visible"
+                variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
+              >
+                {listed.map((card, i) => {
+                  const items = [];
 
-              // Inject CTA card before index 2 (3rd slot in grid)
-              if (i === 2) {
-                items.push(
-                  <div key="cta-card" className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
+                  // Inject CTA card at index 2
+                  if (i === 2) {
+                    items.push(
+                      <div key="cta-card" className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
                     <motion.div
                       variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0 } }}
                       style={{
@@ -219,25 +229,58 @@ const Product = ({ properties = [] }) => {
               }
 
               items.push(
-                <div key={card.id || i} className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
-                  <PropertyCard
-                    card={card}
-                    index={i}
-                    onClick={() => router.push(`/detail?property=${card.id}`)}
-                  />
-                </div>
-              );
+                  <div key={card.id || i} className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
+                    <PropertyCard
+                      card={card}
+                      index={i}
+                      onClick={() => router.push(`/detail?property=${card.id}`)}
+                    />
+                  </div>
+                );
 
-              return items;
-            })
-          ) : (
+                  return items;
+                })}
+              </motion.div>
+
+              {/* ── Sold section ── */}
+              {sold.length > 0 && (
+                <>
+                  <div style={{ width: "100%", margin: "40px 0 28px", display: "flex", alignItems: "center", gap: "16px" }}>
+                    <div style={{ flex: 1, height: "1px", background: "rgba(220,38,38,0.2)" }} />
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 18px", background: "rgba(220,38,38,0.08)", border: "1px solid rgba(220,38,38,0.25)", borderRadius: "50px" }}>
+                      <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#f87171" }} />
+                      <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#f87171", textTransform: "uppercase", letterSpacing: "1.5px" }}>Sold Properties</span>
+                      <span style={{ fontSize: "0.75rem", color: "rgba(248,113,113,0.6)", fontWeight: 600 }}>{sold.length}</span>
+                    </div>
+                    <div style={{ flex: 1, height: "1px", background: "rgba(220,38,38,0.2)" }} />
+                  </div>
+                  <motion.div
+                    className="row g-5"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
+                  >
+                    {sold.map((card, i) => (
+                      <div key={card.id || i} className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
+                        <PropertyCard
+                          card={card}
+                          index={i}
+                          onClick={() => router.push(`/detail?property=${card.id}`)}
+                        />
+                      </div>
+                    ))}
+                  </motion.div>
+                </>
+              )}
+            </>
+          );
+        })() : (
             <div className="col-12 text-center" style={{ padding: "60px 0" }}>
               <p style={{ color: "var(--color-body)", fontSize: "16px" }}>
                 No properties found{activeCategory !== "*" ? ` in "${activeCategory}"` : ""}.
               </p>
             </div>
           )}
-        </motion.div>
       </div>
     </div>
   );
