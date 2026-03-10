@@ -58,6 +58,13 @@ export const StateContextProvider = ({ children }) => {
     if (typeof window === "undefined") return;
     if (!window.ethereum) return;
 
+    // Check if user explicitly disconnected
+    const wasDisconnected = localStorage.getItem("walletDisconnected") === "true";
+    if (wasDisconnected) {
+      console.log("User previously disconnected - skipping auto-connect");
+      return;
+    }
+
       // Use eth_accounts (read-only, no popup) to check existing connection
       const accounts = await window.ethereum.request({
         method: "eth_accounts",
@@ -89,6 +96,10 @@ export const StateContextProvider = ({ children }) => {
     setCurrentAccount(null);
     setAccountBalance(null);
     setUserBlance(null);
+    
+    // Clear the selected provider
+    window._selectedProvider = null;
+    
     try {
       const web3modal = new Web3Modal();
       web3modal.clearCachedProvider();
@@ -346,20 +357,27 @@ export const StateContextProvider = ({ children }) => {
         return;
       }
 
-      if (owner && address.toLowerCase() === owner.toLowerCase()) {
+      // Validate owner is available
+      if (!owner) {
+        notifyError("Unable to verify property ownership. Please refresh and try again.");
+        return;
+      }
+
+      // Check if user is the owner
+      if (address.toLowerCase() === owner.toLowerCase()) {
         notifyError("You cannot buy your own property");
+        console.log("Owner check prevented purchase - Current Address:", address, "Property Owner:", owner);
         return;
       }
 
       const transaction = await contract.buyProperty(productID, address, {
         value: money.toString(),
       });
-      await transaction.wait();
+      const receipt = await transaction.wait();
       console.info("contract call successs", transaction);
 
       // UPDATE OWNER IN MONGODB AFTER BUY
       try {
-        const { owner: newOwner } = buying;
         await fetch(`/api/properties/${productID}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -370,6 +388,19 @@ export const StateContextProvider = ({ children }) => {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ $push: { properties: productID } }),
+        });
+        // SAVE TRANSACTION RECORD
+        await fetch("/api/transactions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            txHash:      receipt.transactionHash,
+            buyer:       address,
+            seller:      owner,
+            propertyId:  productID,
+            amount:      parseFloat(ethers.utils.formatEther(money)),
+            blockNumber: receipt.blockNumber,
+          }),
         });
       } catch (dbErr) {
         console.log("DB buy sync error:", dbErr);

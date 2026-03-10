@@ -159,13 +159,13 @@ const Footer = () => {
             <h6 style={colHeadStyle}>Information</h6>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "7px" }}>
               {[
-                { href: "/about",   label: "About BlockEstate" },
-                { href: "/contact", label: "Contact Us" },
-                { href: "/blog",    label: "Blog & News" },
-                { href: "/news",    label: "Market News" },
-                { href: "/fourm",   label: "Community Forum" },
-                { href: "/privacy", label: "Privacy Policy" },
-                { href: "/creator", label: "Verified Agents" },
+                { href: "/about",        label: "About BlockEstate" },
+                { href: "/contact",      label: "Contact Us" },
+                { href: "/blog",         label: "Blog & News" },
+                { href: "/news",         label: "Market News" },
+                { href: "/transactions", label: "Transaction History" },
+                { href: "/privacy",      label: "Privacy Policy" },
+                { href: "/creator",      label: "Verified Agents" },
               ].map(({ href, label }) => (
                 <li key={href} style={{ margin: 0, padding: 0 }}>
                   <Link href={href} style={linkStyle}

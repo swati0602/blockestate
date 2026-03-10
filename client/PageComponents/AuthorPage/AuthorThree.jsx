@@ -48,9 +48,10 @@ const cardStyle = `
   }
 `;
 
-const PropertyCard = ({ property, index, showUpdate }) => {
+const PropertyCard = ({ property, index, showUpdate, onRelist, relistingId }) => {
   const router = useRouter();
   const [hovered, setHovered] = useState(false);
+  const [relistPrice, setRelistPrice] = useState("");
   const details = parsePropertyDetails(property.description || "");
   const imgSrc =
     property.image && property.image.startsWith("http")
@@ -206,6 +207,65 @@ const PropertyCard = ({ property, index, showUpdate }) => {
             </span>
           </div>
         </div>
+
+        {/* Status / re-list panel */}
+        {showUpdate && (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: "14px", marginTop: "4px" }}
+          >
+            {property.isSold ? (
+              /* ── Sold: show re-list form ── */
+              <>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
+                  <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1.5px", color: "#a78bfa" }}>Re-list for Sale</p>
+                  <span style={{ fontSize: "0.75rem", fontWeight: "700", color: "#f87171", background: "rgba(220,38,38,0.12)", border: "1px solid rgba(220,38,38,0.25)", borderRadius: "4px", padding: "2px 8px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Sold</span>
+                </div>
+                <p style={{ margin: "0 0 10px", fontSize: "0.95rem", color: "rgba(255,255,255,0.5)" }}>
+                  This property was sold. List it again to make it buyable.
+                </p>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.0001"
+                  placeholder={`New price (current: ${property.price} ETH)`}
+                  value={relistPrice}
+                  onChange={(e) => setRelistPrice(e.target.value)}
+                  style={{
+                    width: "100%", padding: "10px 13px", marginBottom: "8px",
+                    background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(112,72,232,0.3)",
+                    borderRadius: "8px", color: "#e2d9ff", fontSize: "1rem",
+                    outline: "none", boxSizing: "border-box",
+                  }}
+                />
+                <button
+                  onClick={() => onRelist && onRelist(property.productID, relistPrice)}
+                  disabled={relistingId === property.productID}
+                  style={{
+                    width: "100%", padding: "12px",
+                    background: relistingId === property.productID ? "rgba(112,72,232,0.3)" : "linear-gradient(135deg,#8b5cf6,#6d28d9)",
+                    color: "#fff", border: "none", borderRadius: "8px",
+                    fontSize: "1rem", fontWeight: "700",
+                    cursor: relistingId === property.productID ? "not-allowed" : "pointer",
+                    boxShadow: relistingId === property.productID ? "none" : "0 4px 16px rgba(112,72,232,0.3)",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  {relistingId === property.productID ? "Relisting…" : "Re-list Property"}
+                </button>
+              </>
+            ) : (
+              /* ── Active: show listed status ── */
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 14px", background: "rgba(16,185,129,0.07)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: "8px" }}>
+                <div style={{ width: "9px", height: "9px", borderRadius: "50%", background: "#10b981", flexShrink: 0, boxShadow: "0 0 6px rgba(16,185,129,0.6)" }} />
+                <div>
+                  <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1.2px", color: "#10b981" }}>Listed on Market</p>
+                  <p style={{ margin: 0, fontSize: "0.9rem", color: "rgba(255,255,255,0.45)" }}>Available for purchase at {property.price} ETH</p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -213,7 +273,7 @@ const PropertyCard = ({ property, index, showUpdate }) => {
 
 //  main component 
 
-const AuthorThree = ({ properties, author }) => {
+const AuthorThree = ({ properties, author, relistProperty, relistingId }) => {
   const [activeTab, setActiveTab] = useState("owned");
 
   const list = activeTab === "owned" ? author : properties;
@@ -333,7 +393,14 @@ const AuthorThree = ({ properties, author }) => {
                 gap: "30px"
               }}>
                 {list.map((property, i) => (
-                  <PropertyCard key={property.productID || i} property={property} index={i} showUpdate={showUpdate} />
+                  <PropertyCard
+                    key={property.productID || i}
+                    property={property}
+                    index={i}
+                    showUpdate={showUpdate}
+                    onRelist={relistProperty}
+                    relistingId={relistingId}
+                  />
                 ))}
               </div>
             )}

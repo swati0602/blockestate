@@ -34,6 +34,7 @@ const Product = ({ properties = [] }) => {
     rawDescription: p.description || "",
     category: p.category || "",
     id: p.productID,
+    owner: p.owner || "",
   }));
 
   return (

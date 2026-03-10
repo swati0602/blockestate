@@ -57,11 +57,15 @@ const UpdatePage = () => {
   const [file, setFile] = useState(null);
   const [displayImg, setDisplayImg] = useState(null);
   const [uploadStatus, setUploadStatus] = useState("");
+  const [isSold, setIsSold] = useState(false);
+  const [relistPrice, setRelistPrice] = useState("");
+  const [relistLoading, setRelistLoading] = useState(false);
 
   const {
     address,
     getPropertyFunction,
     updatePropertyFunction,
+    updatePriceFunction,
     PINATA_API_KEY,
     PINATA_SECRECT_KEY,
     setLoader,
@@ -115,6 +119,14 @@ const UpdatePage = () => {
             bathrooms,
             sqft: area,
           });
+          // Fetch isSold status from MongoDB
+          try {
+            const res = await fetch(`/api/properties/${data.productID || query.property}`);
+            if (res.ok) {
+              const dbData = await res.json();
+              setIsSold(dbData.isSold || false);
+            }
+          } catch (_) {}
         }
       } catch (e) {
         console.error(e);
@@ -126,6 +138,30 @@ const UpdatePage = () => {
 
   const handleFormFieldChange = (fieldName, e) => {
     setForm((prev) => ({ ...prev, [fieldName]: e.target.value }));
+  };
+
+  const handleRelist = async () => {
+    if (!query.property) return;
+    setRelistLoading(true);
+    try {
+      // Optionally update on-chain price if a new price was entered
+      if (relistPrice && !isNaN(parseFloat(relistPrice)) && parseFloat(relistPrice) > 0) {
+        await updatePriceFunction({ productID: Number(query.property), price: relistPrice.toString() });
+      }
+      // Mark as not sold in MongoDB
+      await fetch(`/api/properties/${query.property}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isSold: false }),
+      });
+      setIsSold(false);
+      setRelistPrice("");
+      notifySuccess("Property re-listed for sale successfully!");
+    } catch (err) {
+      notifyError("Failed to re-list property");
+      console.error(err);
+    }
+    setRelistLoading(false);
   };
 
   const handleSubmit = async () => {
@@ -448,6 +484,43 @@ const UpdatePage = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Re-list for Sale — only shown when property is sold */}
+              {isSold && (
+                <div style={{ ...sectionCard, border: "1px solid rgba(139,92,246,0.35)", background: "linear-gradient(135deg, rgba(109,40,217,0.08) 0%, rgba(15,15,26,1) 100%)", marginBottom: "24px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
+                    <div style={{ width: "3px", height: "22px", background: "linear-gradient(180deg,#8b5cf6,#6d28d9)", borderRadius: "2px" }} />
+                    <p style={{ color: "#8b5cf6", fontSize: "11px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", margin: 0 }}>Re-list for Sale</p>
+                    <span style={{ marginLeft: "auto", background: "rgba(220,38,38,0.15)", border: "1px solid rgba(220,38,38,0.3)", borderRadius: "6px", padding: "2px 10px", fontSize: "11px", fontWeight: "700", color: "#f87171", letterSpacing: "0.5px" }}>Sold</span>
+                  </div>
+                  <p style={{ color: "#acacac", fontSize: "13px", margin: "0 0 18px", lineHeight: "1.6" }}>
+                    This property has been sold. You can re-list it on the marketplace. Optionally set a new price — leave blank to keep the current price of <strong style={{ color: "#fff" }}>{form.price} ETH</strong>.
+                  </p>
+                  <div className="row g-3 align-items-end">
+                    <div className="col-lg-7 col-md-7 col-12">
+                      <label style={labelStyle}>New Price (ETH) — optional</label>
+                      <input
+                        style={inputStyle}
+                        type="number"
+                        min="0"
+                        step="0.0001"
+                        value={relistPrice}
+                        placeholder={`Leave blank to keep ${form.price} ETH`}
+                        onChange={(e) => setRelistPrice(e.target.value)}
+                      />
+                    </div>
+                    <div className="col-lg-5 col-md-5 col-12">
+                      <button
+                        onClick={handleRelist}
+                        disabled={relistLoading}
+                        style={{ width: "100%", padding: "11px 16px", background: relistLoading ? "#1e1040" : "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)", color: relistLoading ? "#acacac" : "#fff", border: relistLoading ? "1px solid rgba(139,92,246,0.2)" : "none", borderRadius: "10px", fontSize: "13px", fontWeight: "700", cursor: relistLoading ? "not-allowed" : "pointer", boxShadow: relistLoading ? "none" : "0 4px 18px rgba(139,92,246,0.3)", transition: "all 0.3s ease" }}
+                      >
+                        {relistLoading ? "Re-listing…" : "Re-list Property"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Save */}
               <button onClick={handleSubmit} disabled={isLoading}

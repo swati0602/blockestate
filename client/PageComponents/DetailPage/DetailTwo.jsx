@@ -348,28 +348,26 @@ const DetailTwo = ({
 
               </div>
 
-              {/* Buy Button */}
-              <button
-                onClick={() => buyingProperty()}
-                type="button"
-                disabled={address === property?.owner}
-                style={{
-                  width: "100%",
-                  padding: "14px",
-                  background: address === property?.owner ? "#1a0f2e" : "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
-                  color: address === property?.owner ? "#acacac" : "#fff",
-                  border: address === property?.owner ? "1px solid rgba(255,255,255,0.06)" : "none",
-                  borderRadius: "10px",
-                  fontSize: "14px",
-                  fontWeight: "700",
-                  cursor: address === property?.owner ? "not-allowed" : "pointer",
-                  letterSpacing: "0.5px",
-                  boxShadow: address === property?.owner ? "none" : "0 6px 24px rgba(139, 92, 246, 0.28)",
-                  transition: "all 0.3s ease",
-                }}
-              >
-                {buyLoading ? <Loader /> : address === property?.owner ? "You Own This Property" : `Buy for ${property?.price} ETH`}
-              </button>
+              {/* Buy / Owner / Sold Button */}
+              {(() => {
+                const isOwner = address?.toLowerCase() === property?.owner?.toLowerCase();
+                const isSold  = property?.isSold === true;
+                if (isOwner) return (
+                  <button type="button" disabled style={{ width:"100%",padding:"14px",background:"#1a0f2e",color:"#acacac",border:"1px solid rgba(255,255,255,0.06)",borderRadius:"10px",fontSize:"14px",fontWeight:"700",cursor:"not-allowed",letterSpacing:"0.5px" }}>
+                    You Own This Property
+                  </button>
+                );
+                if (isSold) return (
+                  <button type="button" disabled style={{ width:"100%",padding:"14px",background:"rgba(30,15,50,0.8)",color:"#ef4444",border:"1px solid rgba(255,255,255,0.06)",borderRadius:"10px",fontSize:"14px",fontWeight:"700",cursor:"not-allowed",letterSpacing:"0.5px" }}>
+                    Property Already Sold
+                  </button>
+                );
+                return (
+                  <button onClick={() => buyingProperty()} type="button" style={{ width:"100%",padding:"14px",background:"linear-gradient(135deg,#8b5cf6 0%,#6d28d9 100%)",color:"#fff",border:"none",borderRadius:"10px",fontSize:"14px",fontWeight:"700",cursor:"pointer",letterSpacing:"0.5px",boxShadow:"0 6px 24px rgba(139,92,246,0.28)",transition:"all 0.3s ease" }}>
+                    {buyLoading ? <Loader /> : `Buy for ${property?.price} ETH`}
+                  </button>
+                );
+              })()}
 
             </div>
           </div>

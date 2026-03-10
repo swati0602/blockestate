@@ -34,11 +34,13 @@ export const getTopCreators = (creators) => {
 
   Object.entries(finalResults).forEach((item) => {
     const owner = item[0];
-    const total = item[1]
+    const properties = item[1];
+    const total = properties
       .map((newItem) => Number(newItem.price))
       .reduce((previousValue, currentValue) => previousValue + currentValue, 0);
+    const count = properties.length;
 
-    finalCreators.push({ owner, total });
+    finalCreators.push({ owner, total, count });
   });
 
   return finalCreators;

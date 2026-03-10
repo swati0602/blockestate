@@ -401,6 +401,16 @@ const PropertyCard = ({ card = {}, onClick, index = 0 }) => {
           </div>
         ) : null}
 
+        {/* owner wallet */}
+        {card.owner ? (
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "2px" }}>
+            <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.28)", textTransform: "uppercase", letterSpacing: "0.07em", fontWeight: 600 }}>Owner</span>
+            <span style={{ fontFamily: "monospace", fontSize: "0.82rem", color: "#a78bfa", background: "rgba(112,72,232,0.1)", padding: "2px 8px", borderRadius: "5px" }}>
+              {card.owner.slice(0, 8)}&hellip;{card.owner.slice(-6)}
+            </span>
+          </div>
+        ) : null}
+
         {/* stats */}
         <div style={{
           display: "flex",

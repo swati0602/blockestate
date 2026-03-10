@@ -114,7 +114,7 @@ const S = `
     border:1.5px solid rgba(255,255,255,0.09);
     border-radius:13px;
     color:#e2d9ff;
-    font-size:1.2rem;
+    font-size:0.55rem;
     font-weight:500;
     outline:none;
     transition:border-color .25s, background .25s, box-shadow .25s;
@@ -125,7 +125,7 @@ const S = `
   }
   .ep2-inp::placeholder {
     color:rgba(255,255,255,0.2) !important;
-    font-size:1.1rem;
+    font-size:0.8rem;
     font-weight:400;
     opacity:1 !important;
   }
@@ -153,13 +153,13 @@ const S = `
     background:rgba(255,255,255,0.04);
     border:1.5px solid rgba(255,255,255,0.09);
     border-radius:13px;
-    color:#e2d9ff;font-size:1.2rem;font-weight:500;
+    color:#e2d9ff;font-size:0.875rem;font-weight:500;
     outline:none;resize:vertical;line-height:1.6;
     transition:border-color .25s,background .25s,box-shadow .25s;
     -webkit-appearance:none;appearance:none;
     box-sizing:border-box;
   }
-  .ep2-tarea::placeholder { color:rgba(255,255,255,0.2) !important; font-size:1.1rem; font-weight:400; opacity:1 !important; }
+  .ep2-tarea::placeholder { color:rgba(255,255,255,0.2) !important; font-size:0.8rem; font-weight:400; opacity:1 !important; }
   .ep2-tarea:hover { border-color:rgba(167,139,250,0.35);background:rgba(255,255,255,0.055); }
   .ep2-tarea:focus { border-color:#7c3aed;background:rgba(112,72,232,0.07);box-shadow:0 0 0 3.5px rgba(112,72,232,0.18),0 0 28px rgba(112,72,232,0.1); }
   .ep2-char { position:absolute;right:16px;bottom:12px;font-size:0.95rem;color:rgba(255,255,255,0.18);pointer-events:none;font-family:monospace;transition:color .22s; }
@@ -168,6 +168,26 @@ const S = `
   /* sub heading */
   .ep2-sub { font-size:1.05rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(167,139,250,0.55);margin:32px 0 20px;display:flex;align-items:center;gap:12px; }
   .ep2-sub::after { content:"";flex:1;height:1px;background:rgba(139,92,246,0.15); }
+
+  /* ─── ROLE SELECT ─── */
+  .ep2-select-wrap { position:relative;display:flex;align-items:center; }
+  .ep2-select-wrap i.ep2-sel-ico { position:absolute;left:14px;color:#6b7280;font-size:14px;pointer-events:none;z-index:1; }
+  .ep2-select-wrap i.ep2-sel-arrow { position:absolute;right:14px;color:#6b7280;font-size:13px;pointer-events:none; }
+  .ep2-sel {
+    width:100%;height:46px;
+    padding:0 40px 0 38px;
+    background:rgba(255,255,255,0.04);
+    border:1.5px solid rgba(255,255,255,0.09);
+    border-radius:10px;
+    color:#e2d9ff;font-size:0.875rem;font-weight:500;
+    outline:none;cursor:pointer;
+    -webkit-appearance:none;appearance:none;
+    transition:border-color .25s,background .25s,box-shadow .25s;
+    box-sizing:border-box;
+  }
+  .ep2-sel option { background:#0e0c1e;color:#e2d9ff;font-size:0.875rem; }
+  .ep2-sel:hover { border-color:rgba(167,139,250,0.35);background:rgba(255,255,255,0.055); }
+  .ep2-sel:focus { border-color:#7c3aed;background:rgba(112,72,232,0.07);box-shadow:0 0 0 3.5px rgba(112,72,232,0.18); }
 
   /* upload */
   .ep2-upload-grid { display:grid;grid-template-columns:200px 1fr;gap:28px; }
@@ -483,7 +503,25 @@ const EditProfileTwo = () => {
                             <input className="ep2-inp" id="ep2-username" name="username" type="text" value={profile.username} onChange={e => setProfile(p => ({ ...p, username: e.target.value }))} placeholder="e.g. john_doe" autoComplete="off" />
                           </Field>
                           <Field label="Your Role" icon="feather-briefcase">
-                            <input className="ep2-inp" id="ep2-role" name="role" type="text" value={profile.role} onChange={e => setProfile(p => ({ ...p, role: e.target.value }))} placeholder="e.g. Property Investor" autoComplete="off" />
+                            <div className="ep2-select-wrap">
+                              <i className="feather-briefcase ep2-sel-ico" />
+                              <select
+                                className="ep2-sel"
+                                id="ep2-role"
+                                name="role"
+                                value={profile.role}
+                                onChange={e => setProfile(p => ({ ...p, role: e.target.value }))}
+                              >
+                                <option value="">Select a role...</option>
+                                <option value="Property Investor">Property Investor</option>
+                                <option value="Property Seller">Property Seller</option>
+                                <option value="Property Lister">Property Lister</option>
+                                <option value="Buyer">Buyer</option>
+                                <option value="Real Estate Agent">Real Estate Agent</option>
+                                <option value="Investor & Seller">Investor &amp; Seller</option>
+                              </select>
+                              <i className="feather-chevron-down ep2-sel-arrow" />
+                            </div>
                           </Field>
                         </div>
 

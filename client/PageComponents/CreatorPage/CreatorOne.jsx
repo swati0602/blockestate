@@ -2,20 +2,20 @@
 import Link from "next/link";
 
 const STATIC = [
-  { name: "JOne Lee",  volume: "$900K",   img: "/client/client-3.png",  verified: false },
-  { name: "Malinga",   volume: "$2.4M",   img: "/client/client-4.png",  verified: true  },
-  { name: "Favis",     volume: "$290K",   img: "/client/client-5.png",  verified: false },
-  { name: "Fakir",     volume: "$2.99M",  img: "/client/client-6.png",  verified: false },
-  { name: "Sajib",     volume: "$1.1M",   img: "/client/client-7.png",  verified: true  },
-  { name: "Mikel",     volume: "$2.5M",   img: "/client/client-9.png",  verified: false },
-  { name: "Kolik",     volume: "$9.9M",   img: "/client/client-8.png",  verified: true  },
-  { name: "LAkiba",    volume: "$652K",   img: "/client/client-1.png",  verified: false },
-  { name: "Murkis",    volume: "$2.5M",   img: "/client/client-6.png",  verified: false },
-  { name: "Mr.Faks",   volume: "$5.9M",   img: "/client/client-1.png",  verified: true  },
-  { name: "Ranbir",    volume: "$2.5M",   img: "/client/client-9.png",  verified: false },
-  { name: "Dabvira",   volume: "$26.6M",  img: "/client/client-11.png", verified: false },
-  { name: "Jaki Shah", volume: "$6.5M",   img: "/client/client-5.png",  verified: true  },
-  { name: "Torpedo",   volume: "$8.5M",   img: "/client/client-10.png", verified: false },
+  { name: "JOne Lee",  volume: "$900K",   count: 3,  img: "/client/client-3.png",  verified: false },
+  { name: "Malinga",   volume: "$2.4M",   count: 8,  img: "/client/client-4.png",  verified: true  },
+  { name: "Favis",     volume: "$290K",   count: 1,  img: "/client/client-5.png",  verified: false },
+  { name: "Fakir",     volume: "$2.99M",  count: 11, img: "/client/client-6.png",  verified: false },
+  { name: "Sajib",     volume: "$1.1M",   count: 4,  img: "/client/client-7.png",  verified: true  },
+  { name: "Mikel",     volume: "$2.5M",   count: 9,  img: "/client/client-9.png",  verified: false },
+  { name: "Kolik",     volume: "$9.9M",   count: 35, img: "/client/client-8.png",  verified: true  },
+  { name: "LAkiba",    volume: "$652K",   count: 2,  img: "/client/client-1.png",  verified: false },
+  { name: "Murkis",    volume: "$2.5M",   count: 9,  img: "/client/client-6.png",  verified: false },
+  { name: "Mr.Faks",   volume: "$5.9M",   count: 21, img: "/client/client-1.png",  verified: true  },
+  { name: "Ranbir",    volume: "$2.5M",   count: 9,  img: "/client/client-9.png",  verified: false },
+  { name: "Dabvira",   volume: "$26.6M",  count: 97, img: "/client/client-11.png", verified: false },
+  { name: "Jaki Shah", volume: "$6.5M",   count: 24, img: "/client/client-5.png",  verified: true  },
+  { name: "Torpedo",   volume: "$8.5M",   count: 30, img: "/client/client-10.png", verified: false },
 ];
 
 const TABS = ["All Time", "This Month", "This Week"];
@@ -28,7 +28,8 @@ const CreatorOne = ({ creators = [] }) => {
 
   const onChain = creators.map((c, i) => ({
     name: c.owner ? c.owner.slice(0, 6) + "..." + c.owner.slice(-4) : "0x???",
-    volume: c.total ? `${c.total} ETH` : "—",
+    volume: c.total ? `${parseFloat(c.total.toFixed(4))} ETH` : "—",
+    count: c.count || 0,
     img: `/client/client-${(i % 11) + 1}.png`,
     verified: true,
   }));
@@ -98,7 +99,17 @@ const CreatorOne = ({ creators = [] }) => {
                     </svg>
                   )}
                 </div>
-                <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>Property Creator</div>
+                <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "8px" }}>Property Creator</div>
+                <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: "8px", display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.8px", fontWeight: 600 }}>Owned</span>
+                    <span style={{ fontSize: "14px", fontWeight: 800, color: "#a78bfa" }}>{c.count ?? "—"}</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.8px", fontWeight: 600 }}>Volume</span>
+                    <span style={{ fontSize: "13px", fontWeight: 700, color: "#fff", wordBreak: "break-all", textAlign: "right", maxWidth: "80px" }}>{c.volume}</span>
+                  </div>
+                </div>
               </div>
             ))}
           </div>

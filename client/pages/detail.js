@@ -49,7 +49,20 @@ const detail = () => {
     const dataReviews = await getProductReviewsFunction(query.property);
     const dataProperties = await getPropertiesData();
     setProperties(dataProperties);
-    setProperty(data);
+
+    // Merge isSold from MongoDB so the UI knows if already purchased
+    try {
+      const dbRes = await fetch(`/api/properties/${query.property}`);
+      const dbJson = await dbRes.json();
+      if (dbJson.success && dbJson.data) {
+        setProperty({ ...data, isSold: dbJson.data.isSold, owner: dbJson.data.owner || data?.owner });
+      } else {
+        setProperty(data);
+      }
+    } catch (_) {
+      setProperty(data);
+    }
+
     setParsedReviews(dataReviews);
     setIsLoading(false);
   };
@@ -91,6 +104,7 @@ const detail = () => {
   const buying = {
     productID: property?.productID,
     amount: property?.price,
+    owner: property?.owner,
   };
   const buyingProperty = async () => {
     setBuyLoading(true);
