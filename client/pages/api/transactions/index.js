@@ -1,5 +1,6 @@
 import connectDB from "../../../utils/db";
 import Transaction from "../../../models/Transaction";
+import Property from "../../../models/Property";
 
 export default async function handler(req, res) {
   await connectDB();
@@ -31,6 +32,18 @@ export default async function handler(req, res) {
 
       if (!txHash || !buyer || propertyId == null || amount == null) {
         return res.status(400).json({ success: false, message: "Missing required fields" });
+      }
+
+      // Server-side guard: buyer must not be the current owner or original lister
+      const buyerAddr = buyer.toLowerCase();
+      const propertyDoc = await Property.findOne({ tokenId: Number(propertyId) });
+      if (propertyDoc) {
+        if (buyerAddr === propertyDoc.owner) {
+          return res.status(400).json({ success: false, message: "You cannot buy your own property" });
+        }
+        if (propertyDoc.seller && buyerAddr === propertyDoc.seller) {
+          return res.status(400).json({ success: false, message: "You cannot buy a property you listed" });
+        }
       }
 
       const tx = await Transaction.findOneAndUpdate(

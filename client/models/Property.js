@@ -9,10 +9,17 @@ const PropertySchema = new mongoose.Schema(
       sparse: true, // allow null until minted
     },
 
-    // Owner wallet address
+    // Owner wallet address (current owner, changes on sale)
     owner: {
       type: String,
       required: true,
+      lowercase: true,
+      trim: true,
+    },
+
+    // Original lister address (never changes after creation)
+    seller: {
+      type: String,
       lowercase: true,
       trim: true,
     },
@@ -60,6 +67,9 @@ const PropertySchema = new mongoose.Schema(
     // Ratings
     rating: { type: Number, default: 0, min: 0, max: 5 },
     reviewCount: { type: Number, default: 0 },
+
+    // Off-chain interest list (supports add/remove and de-duplication)
+    interestedUsers: [{ type: String, lowercase: true, trim: true }],
   },
   { timestamps: true }
 );

@@ -24,6 +24,8 @@ const UserSchema = new mongoose.Schema(
     lastLogin: { type: Date, default: Date.now },
     // Properties they own (productIDs from blockchain)
     properties: [{ type: Number }],
+    // Properties the user marked as interested
+    interestedProperties: [{ type: Number }],
   },
   { timestamps: true }
 );

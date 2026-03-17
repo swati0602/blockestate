@@ -225,6 +225,21 @@ export const StateContextProvider = ({ children }) => {
             area: parseFloat(sqft) || 0,
           }),
         });
+        // LOG ACTIVITY
+        await fetch("/api/activity", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type:        "PROPERTY_LISTED",
+            actor:       address,
+            propertyId:  tokenId,
+            txHash:      receipt.transactionHash,
+            blockNumber: receipt.blockNumber,
+            amount:      parseFloat(ethers.utils.formatEther(price.toString())),
+            reason:      `Listed "${propertyTitle}" for ${ethers.utils.formatEther(price.toString())} ETH`,
+            metadata:    { title: propertyTitle, category, propertyAddress },
+          }),
+        });
       } catch (dbErr) {
         console.log("DB property sync error:", dbErr);
       }
@@ -271,16 +286,17 @@ export const StateContextProvider = ({ children }) => {
         description
       );
 
-      await transaction.wait();
+      const updateReceipt = await transaction.wait();
 
       // Also update price if provided
+      let priceReceipt = null;
       if (price && price.toString().trim() !== "" && parseFloat(price) > 0) {
         const priceTransaction = await contract.updatePrice(
           address,
           productId,
           ethers.utils.parseEther(price.toString())
         );
-        await priceTransaction.wait();
+        priceReceipt = await priceTransaction.wait();
       }
 
       // UPDATE PROPERTY IN MONGODB
@@ -300,6 +316,37 @@ export const StateContextProvider = ({ children }) => {
             ...(sqft      !== undefined && { area:      parseFloat(sqft)    || 0 }),
           }),
         });
+        // LOG ACTIVITY — update details
+        await fetch("/api/activity", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type:        "PROPERTY_UPDATED",
+            actor:       address,
+            propertyId:  productId,
+            txHash:      updateReceipt.transactionHash,
+            blockNumber: updateReceipt.blockNumber,
+            reason:      `Updated details for Property #${productId}`,
+            metadata:    { title: propertyTitle, category, propertyAddress },
+          }),
+        });
+        // LOG ACTIVITY — price change (if any)
+        if (priceReceipt) {
+          await fetch("/api/activity", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              type:        "PRICE_UPDATED",
+              actor:       address,
+              propertyId:  productId,
+              txHash:      priceReceipt.transactionHash,
+              blockNumber: priceReceipt.blockNumber,
+              amount:      parseFloat(price) || 0,
+              reason:      `Updated price to ${price} ETH for Property #${productId}`,
+              metadata:    { newPrice: price },
+            }),
+          });
+        }
       } catch (dbErr) {
         console.log("DB update sync error:", dbErr);
       }
@@ -329,7 +376,24 @@ export const StateContextProvider = ({ children }) => {
         ethers.utils.parseEther(price)
       );
 
-      await transaction.wait();
+      const priceOnlyReceipt = await transaction.wait();
+      // LOG ACTIVITY
+      try {
+        await fetch("/api/activity", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type:        "PRICE_UPDATED",
+            actor:       address,
+            propertyId:  productID,
+            txHash:      priceOnlyReceipt.transactionHash,
+            blockNumber: priceOnlyReceipt.blockNumber,
+            amount:      parseFloat(price) || 0,
+            reason:      `Updated price to ${price} ETH for Property #${productID}`,
+            metadata:    { newPrice: price },
+          }),
+        });
+      } catch (logErr) { console.log("Activity log error:", logErr); }
       setLoader(false);
       notifySuccess("Transaction went successfully");
       setCount(count + 1);
@@ -344,7 +408,7 @@ export const StateContextProvider = ({ children }) => {
 
   //BUY PROPERTY
   const buyPropertyFunction = async (buying) => {
-    const { productID, amount, owner } = buying;
+    const { productID, amount, owner, seller } = buying;
     const money = ethers.utils.parseEther(amount);
 
     try {
@@ -363,10 +427,17 @@ export const StateContextProvider = ({ children }) => {
         return;
       }
 
-      // Check if user is the owner
+      // Check if user is the current owner
       if (address.toLowerCase() === owner.toLowerCase()) {
         notifyError("You cannot buy your own property");
         console.log("Owner check prevented purchase - Current Address:", address, "Property Owner:", owner);
+        return;
+      }
+
+      // Check if user is the original lister (seller)
+      if (seller && address.toLowerCase() === seller.toLowerCase()) {
+        notifyError("You cannot buy a property you listed");
+        console.log("Seller check prevented purchase - Current Address:", address, "Property Seller:", seller);
         return;
       }
 
@@ -400,6 +471,21 @@ export const StateContextProvider = ({ children }) => {
             propertyId:  productID,
             amount:      parseFloat(ethers.utils.formatEther(money)),
             blockNumber: receipt.blockNumber,
+          }),
+        });
+        // LOG ACTIVITY
+        await fetch("/api/activity", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type:        "PROPERTY_PURCHASED",
+            actor:       address,
+            propertyId:  productID,
+            txHash:      receipt.transactionHash,
+            blockNumber: receipt.blockNumber,
+            amount:      parseFloat(ethers.utils.formatEther(money)),
+            reason:      `Purchased Property #${productID} for ${ethers.utils.formatEther(money)} ETH from ${owner?.slice(0,8)}...`,
+            metadata:    { seller: owner },
           }),
         });
       } catch (dbErr) {
@@ -437,7 +523,23 @@ export const StateContextProvider = ({ children }) => {
         comment,
         address
       );
-      await transaction.wait();
+      const reviewReceipt = await transaction.wait();
+      // LOG ACTIVITY
+      try {
+        await fetch("/api/activity", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type:        "REVIEW_ADDED",
+            actor:       address,
+            propertyId:  productID,
+            txHash:      reviewReceipt.transactionHash,
+            blockNumber: reviewReceipt.blockNumber,
+            reason:      `Added a ${rating}\u2605 review on Property #${productID}`,
+            metadata:    { rating, comment },
+          }),
+        });
+      } catch (logErr) { console.log("Activity log error:", logErr); }
       setLoader(false);
       notifySuccess("Interest recorded successfully!");
       setCount(count + 1);
@@ -459,7 +561,23 @@ export const StateContextProvider = ({ children }) => {
         reviewIndex,
         address
       );
-      await transaction.wait();
+      const likeReceipt = await transaction.wait();
+      // LOG ACTIVITY
+      try {
+        await fetch("/api/activity", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type:        "REVIEW_LIKED",
+            actor:       address,
+            propertyId:  productID,
+            txHash:      likeReceipt.transactionHash,
+            blockNumber: likeReceipt.blockNumber,
+            reason:      `Liked a review on Property #${productID}`,
+            metadata:    { reviewIndex },
+          }),
+        });
+      } catch (logErr) { console.log("Activity log error:", logErr); }
       setLoader(false);
       notifySuccess("Transaction went successfully");
       setCount(count + 1);

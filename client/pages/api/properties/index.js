@@ -48,11 +48,16 @@ export default async function handler(req, res) {
         updateData.tokenId = tokenId;
         property = await Property.findOneAndUpdate(
           { tokenId },
-          updateData,
+          {
+            $set: updateData,
+            // seller is set only on first insert — it records the original lister permanently
+            $setOnInsert: { seller: owner?.toLowerCase() },
+          },
           { upsert: true, new: true, setDefaultsOnInsert: true }
         );
       } else {
         // No tokenId yet — just insert a new doc
+        updateData.seller = owner?.toLowerCase();
         property = await Property.create(updateData);
       }
 

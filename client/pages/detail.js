@@ -26,6 +26,7 @@ const detail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [updatePriceLoading, setUpdatePriceLoading] = useState(false);
   const [commentLoading, setCommentLoading] = useState(false);
+  const [interestLoading, setInterestLoading] = useState(false);
   const [buyLoading, setBuyLoading] = useState(false);
 
   const {
@@ -55,7 +56,13 @@ const detail = () => {
       const dbRes = await fetch(`/api/properties/${query.property}`);
       const dbJson = await dbRes.json();
       if (dbJson.success && dbJson.data) {
-        setProperty({ ...data, isSold: dbJson.data.isSold, owner: dbJson.data.owner || data?.owner });
+        setProperty({
+          ...data,
+          isSold:  dbJson.data.isSold,
+          owner:   dbJson.data.owner  || data?.owner,
+          seller:  dbJson.data.seller || data?.owner, // original lister, fallback to owner
+          interestedUsers: dbJson.data.interestedUsers || [],
+        });
       } else {
         setProperty(data);
       }
@@ -91,6 +98,49 @@ const detail = () => {
     setCommentLoading(false);
   };
 
+  const toggleInterest = async () => {
+    if (!currentAccount || !property?.productID) return;
+
+    const wallet = currentAccount.toLowerCase();
+    const interestedUsers = property?.interestedUsers || [];
+    const alreadyInterested = interestedUsers.includes(wallet);
+
+    setInterestLoading(true);
+    try {
+      await fetch(`/api/properties/${property.productID}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          alreadyInterested
+            ? { $pull: { interestedUsers: wallet } }
+            : { $addToSet: { interestedUsers: wallet } }
+        ),
+      });
+
+      await fetch(`/api/users/${wallet}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          alreadyInterested
+            ? { $pull: { interestedProperties: property.productID } }
+            : { $addToSet: { interestedProperties: property.productID } }
+        ),
+      });
+
+      setProperty((prev) => {
+        const prevList = prev?.interestedUsers || [];
+        return {
+          ...prev,
+          interestedUsers: alreadyInterested
+            ? prevList.filter((a) => a !== wallet)
+            : [...new Set([...prevList, wallet])],
+        };
+      });
+    } finally {
+      setInterestLoading(false);
+    }
+  };
+
   //LIKE REVIEW
   const [likeReviews, setLikeReviews] = useState({
     productID: "",
@@ -105,6 +155,7 @@ const detail = () => {
     productID: property?.productID,
     amount: property?.price,
     owner: property?.owner,
+    seller: property?.seller, // original lister — used to block self-purchase
   };
   const buyingProperty = async () => {
     setBuyLoading(true);
@@ -138,6 +189,9 @@ const detail = () => {
         setLikeReviews={setLikeReviews}
         likeReviewCall={likeReviewCall}
         buyingProperty={buyingProperty}
+        toggleInterest={toggleInterest}
+        interestLoading={interestLoading}
+        isInterested={Boolean(currentAccount && property?.interestedUsers?.includes(currentAccount.toLowerCase()))}
         address={currentAccount}
         isLoading={isLoading}
         buyLoading={buyLoading}

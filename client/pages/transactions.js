@@ -1,6 +1,11 @@
 import React from "react";
+import dynamic from "next/dynamic";
 import { Header, Footer, Copyright } from "../PageComponents/Components";
-import { TransactionHistory } from "../PageComponents/TransactionPage";
+
+const TransactionHistory = dynamic(
+  () => import("../PageComponents/TransactionPage").then((m) => m.TransactionHistory),
+  { ssr: false }
+);
 
 const transactions = () => {
   return (

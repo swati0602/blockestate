@@ -8,6 +8,9 @@ const DetailTwo = ({
   likeReviews,
   likeReviewCall,
   buyingProperty,
+  toggleInterest,
+  interestLoading,
+  isInterested,
   address,
   isLoading,
   buyLoading,
@@ -128,7 +131,7 @@ const DetailTwo = ({
                       </div>
                       <div style={{ textAlign: "right" }}>
                         <p style={{ color: "#acacac", fontSize: "10px", margin: "0 0 3px", letterSpacing: "1px", textTransform: "uppercase" }}>Interested</p>
-                        <p style={{ color: "#8b5cf6", fontSize: "18px", fontWeight: "700", margin: "0", lineHeight: "1" }}>{property?.reviewers?.length || 0}</p>
+                        <p style={{ color: "#8b5cf6", fontSize: "18px", fontWeight: "700", margin: "0", lineHeight: "1" }}>{property?.interestedUsers?.length || 0}</p>
                       </div>
                     </div>
                   </>
@@ -212,12 +215,46 @@ const DetailTwo = ({
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "20px" }}>
                 <div style={{ background: "#1a0f2e", border: "1px solid rgba(139, 92, 246, 0.12)", borderRadius: "10px", padding: "14px", textAlign: "center" }}>
                   <p style={{ color: "#acacac", fontSize: "10px", margin: "0 0 5px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px" }}>Interested</p>
-                  <p style={{ color: "#8b5cf6", fontSize: "22px", fontWeight: "800", margin: "0", lineHeight: "1" }}>{property?.reviewers?.length || 0}</p>
+                  <p style={{ color: "#8b5cf6", fontSize: "22px", fontWeight: "800", margin: "0", lineHeight: "1" }}>{property?.interestedUsers?.length || 0}</p>
                 </div>
                 <div style={{ background: "#1a0f2e", border: "1px solid rgba(139, 92, 246, 0.12)", borderRadius: "10px", padding: "14px", textAlign: "center" }}>
                   <p style={{ color: "#acacac", fontSize: "10px", margin: "0 0 5px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px" }}>Reviews</p>
                   <p style={{ color: "#8b5cf6", fontSize: "22px", fontWeight: "800", margin: "0", lineHeight: "1" }}>{parsedReviews?.length || 0}</p>
                 </div>
+              </div>
+
+              {/* Express interest section */}
+              <div style={{ background: "#0d2020", border: "1px solid rgba(0, 212, 170, 0.2)", borderRadius: "12px", padding: "14px 16px", marginBottom: "20px" }}>
+                <p style={{ color: "#acacac", fontSize: "10px", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: "700" }}>
+                  Interested In This Property?
+                </p>
+                <p style={{ color: "#d1fae5", fontSize: "12px", margin: "0 0 12px", lineHeight: "1.5" }}>
+                  Click below to add/remove your interest. Each user can be interested only once.
+                </p>
+                <button
+                  type="button"
+                  disabled={interestLoading || !address}
+                  onClick={() => toggleInterest && toggleInterest()}
+                  style={{
+                    width: "100%",
+                    padding: "12px",
+                    background: interestLoading || !address
+                      ? "#16302d"
+                      : isInterested
+                      ? "linear-gradient(135deg,#ef4444,#b91c1c)"
+                      : "linear-gradient(135deg,#00d4aa,#00a884)",
+                    color: interestLoading || !address ? "#8aa9a3" : "#05211b",
+                    border: "none",
+                    borderRadius: "10px",
+                    fontSize: "13px",
+                    fontWeight: "800",
+                    letterSpacing: "0.3px",
+                    cursor: interestLoading || !address ? "not-allowed" : "pointer",
+                    boxShadow: interestLoading || !address ? "none" : "0 6px 20px rgba(0,212,170,0.22)",
+                  }}
+                >
+                  {interestLoading ? <Loader /> : (!address ? "Connect Wallet To Show Interest" : (isInterested ? "Remove Interest" : "I'm Interested"))}
+                </button>
               </div>
 
               {/* Price */}
@@ -273,7 +310,7 @@ const DetailTwo = ({
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {tab === "comments" ? `Comments (${parsedReviews?.length || 0})` : tab === "interest" ? `Interest (${property?.reviewers?.length || 0})` : "Details"}
+                    {tab === "comments" ? `Comments (${parsedReviews?.length || 0})` : tab === "interest" ? `Interest (${property?.interestedUsers?.length || 0})` : "Details"}
                   </button>
                 ))}
               </div>
@@ -329,11 +366,11 @@ const DetailTwo = ({
 
                 {activeTab === "interest" && (
                   <div>
-                    {!property?.reviewers?.length ? (
+                    {!property?.interestedUsers?.length ? (
                       <p style={{ color: "#acacac", fontSize: "13px", textAlign: "center", padding: "20px 0", margin: "0" }}>No users have shown interest yet.</p>
                     ) : (
                       <div style={{ display: "flex", flexDirection: "column", gap: "6px", maxHeight: "220px", overflowY: "auto" }}>
-                        {property.reviewers.map((reviewer, i) => (
+                        {property.interestedUsers.map((reviewer, i) => (
                           <div key={i} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "9px 12px", background: "#0a0a14", border: "1px solid rgba(139, 92, 246, 0.06)", borderRadius: "8px" }}>
                             <div style={{ width: "28px", height: "28px", borderRadius: "50%", background: "#1e1040", border: "1px solid rgba(139, 92, 246, 0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "#8b5cf6", fontSize: "11px", fontWeight: "700" }}>
                               {i + 1}
@@ -350,11 +387,12 @@ const DetailTwo = ({
 
               {/* Buy / Owner / Sold Button */}
               {(() => {
-                const isOwner = address?.toLowerCase() === property?.owner?.toLowerCase();
-                const isSold  = property?.isSold === true;
-                if (isOwner) return (
+                const isOwner  = address?.toLowerCase() === property?.owner?.toLowerCase();
+                const isSeller = address?.toLowerCase() === property?.seller?.toLowerCase();
+                const isSold   = property?.isSold === true;
+                if (isOwner || isSeller) return (
                   <button type="button" disabled style={{ width:"100%",padding:"14px",background:"#1a0f2e",color:"#acacac",border:"1px solid rgba(255,255,255,0.06)",borderRadius:"10px",fontSize:"14px",fontWeight:"700",cursor:"not-allowed",letterSpacing:"0.5px" }}>
-                    You Own This Property
+                    {isOwner ? "You Own This Property" : "You Listed This Property"}
                   </button>
                 );
                 if (isSold) return (
