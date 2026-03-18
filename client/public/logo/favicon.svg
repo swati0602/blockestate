@@ -1,0 +1,27 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title">
+  <title id="title">BlockEstate favicon</title>
+
+  <rect width="64" height="64" rx="12" fill="#0B2A6F"/>
+  <rect x="18" y="16" width="28" height="34" rx="4" fill="#FFFFFF"/>
+  <rect x="26" y="11" width="12" height="8" rx="2" fill="#F3C64E"/>
+
+  <rect x="22" y="22" width="4" height="4" rx="1" fill="#0B2A6F"/>
+  <rect x="29" y="22" width="4" height="4" rx="1" fill="#0B2A6F"/>
+  <rect x="36" y="22" width="4" height="4" rx="1" fill="#0B2A6F"/>
+
+  <rect x="22" y="29" width="4" height="4" rx="1" fill="#0B2A6F"/>
+  <rect x="29" y="29" width="4" height="4" rx="1" fill="#0B2A6F"/>
+  <rect x="36" y="29" width="4" height="4" rx="1" fill="#0B2A6F"/>
+
+  <rect x="29" y="37" width="6" height="13" rx="1.5" fill="#0B2A6F"/>
+
+  <rect x="8" y="22" width="6" height="6" rx="1.5" fill="#F3C64E"/>
+  <rect x="50" y="22" width="6" height="6" rx="1.5" fill="#F3C64E"/>
+  <rect x="8" y="34" width="6" height="6" rx="1.5" fill="#F3C64E"/>
+  <rect x="50" y="34" width="6" height="6" rx="1.5" fill="#F3C64E"/>
+
+  <line x1="14" y1="25" x2="18" y2="25" stroke="#F3C64E" stroke-width="2" stroke-linecap="round"/>
+  <line x1="46" y1="25" x2="50" y2="25" stroke="#F3C64E" stroke-width="2" stroke-linecap="round"/>
+  <line x1="14" y1="37" x2="18" y2="37" stroke="#F3C64E" stroke-width="2" stroke-linecap="round"/>
+  <line x1="46" y1="37" x2="50" y2="37" stroke="#F3C64E" stroke-width="2" stroke-linecap="round"/>
+</svg>

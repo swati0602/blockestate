@@ -3,10 +3,19 @@ import React from "react";
 import { ThirdwebProvider } from "@thirdweb-dev/react";
 import toast, { Toaster } from "react-hot-toast";
 import { StateContextProvider } from "../context/index";
+import Head from "next/head";
 
 export default function App  ({ Component, pageProps }) {
   return (
+    
     <>
+    <Head>
+      <title>BlockEstate</title>
+      <meta name="application-name" content="BlockEstate" />
+      <link rel="icon" href="/logo/favicon-house.svg?v=3" type="image/svg+xml" />
+      <link rel="shortcut icon" href="/logo/favicon-house.svg?v=3" />
+      <link rel="apple-touch-icon" href="/logo/favicon-house.svg?v=3" />
+    </Head>
     <ThirdwebProvider
       activeChain={11155111}
       clientId="c6dc381f4771f42ffda40be78874355c"

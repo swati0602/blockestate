@@ -1,0 +1,18 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">BlockEstate favicon house</title>
+  <desc id="desc">Purple rounded square icon with minimal white and cyan house mark.</desc>
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5D56F5"/>
+      <stop offset="1" stop-color="#4C3CD3"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="64" height="64" rx="14" fill="url(#bg)"/>
+
+  <path d="M18 36L32 23L46 36" stroke="#F3F6FF" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M20.5 35V49H43.5V35" stroke="#F3F6FF" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M29 49V39.5H35V49" stroke="#7CF6F9" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="26.5" y="18.5" width="11" height="4" rx="2" fill="#7CF6F9"/>
+</svg>
