@@ -159,17 +159,14 @@ const CreateTwo = () => {
     try {
       const fd = new FormData();
       fd.append("file", slot.file);
-      const res = await axios({
-        method: "post",
-        url: "https://api.pinata.cloud/pinning/pinFileToIPFS",
-        data: fd,
-        headers: {
-          pinata_api_key: `2d780626fec955e1b3fc`,
-          pinata_secret_api_key: `5b404c65d0cd8a679de45027045eb59b50036991768e2ff573ff2610f92d20bf`,
-          "Content-Type": "multipart/form-data",
-        },
+      const fileContent = await slot.file.arrayBuffer();
+      const base64Content = Buffer.from(fileContent).toString("base64");
+      const res = await axios.post("/api/pinata/upload", {
+        filename: slot.file.name,
+        content: base64Content,
+        mimeType: slot.file.type || "application/octet-stream",
       });
-      const ipfsUrl = `https://gateway.pinata.cloud/ipfs/${res.data.IpfsHash}`;
+      const ipfsUrl = res.data?.ipfsUrl || "";
       setImageSlots((prev) => {
         const next = prev.map((s) => s.id === id ? { ...s, status: "done", ipfsUrl } : s);
         const first = next.find((s) => s.status === "done");

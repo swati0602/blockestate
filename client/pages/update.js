@@ -66,8 +66,6 @@ const UpdatePage = () => {
     getPropertyFunction,
     updatePropertyFunction,
     updatePriceFunction,
-    PINATA_API_KEY,
-    PINATA_SECRECT_KEY,
     setLoader,
     notifyError,
     notifySuccess,
@@ -189,17 +187,14 @@ const UpdatePage = () => {
       try {
         const formData = new FormData();
         formData.append("file", file);
-        const response = await axios({
-          method: "post",
-          url: "https://api.pinata.cloud/pinning/pinFileToIPFS",
-          data: formData,
-          headers: {
-            pinata_api_key: PINATA_API_KEY,
-            pinata_secret_api_key: PINATA_SECRECT_KEY,
-            "Content-Type": "multipart/form-data",
-          },
+        const fileContent = await file.arrayBuffer();
+        const base64Content = Buffer.from(fileContent).toString("base64");
+        const response = await axios.post("/api/pinata/upload", {
+          filename: file.name,
+          content: base64Content,
+          mimeType: file.type || "application/octet-stream",
         });
-        const ImgHash = `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`;
+        const ImgHash = response.data?.ipfsUrl || "";
         setForm((prev) => ({ ...prev, images: ImgHash }));
         notifySuccess("Image uploaded successfully");
         setUploadStatus("Uploaded");

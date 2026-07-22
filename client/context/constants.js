@@ -1,11 +1,7 @@
 import realEstate from "./BlockEstate.json";
 
-export const REAL_ESTATE_ADDRESS = "0xCDbffFE12C1C28d92cBD6208d2E6E31f30155899";
+export const REAL_ESTATE_ADDRESS = process.env.NEXT_PUBLIC_REAL_ESTATE_ADDRESS || "0xCDbffFE12C1C28d92cBD6208d2E6E31f30155899";
 export const REAL_ESTATE_ABI = realEstate.abi;
-
-//PINATA KEYS
-export const PINATA_API_KEY = "2d780626fec955e1b3fc";
-export const PINATA_SECRECT_KEY = "5b404c65d0cd8a679de45027045eb59b50036991768e2ff573ff2610f92d20bf";
 
 //NETWORK
 const networks = {
